@@ -3,6 +3,18 @@
    глобальными настройками, которые сознательно переопределяют Tailwind
    для этой конкретной страницы. */
 
+/* Глобальная блокировка скролла html/body для Phoba Agency.
+   Только .slides внутри .phoba-page должен скроллиться.
+   !important нужен, чтобы перебить Tailwind preflight. */
+html,
+body {
+  height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  background: #0a0c10 !important;
+}
+
 :root {
   --bg: #0a0c10;
   --bg-2: #0e1117;

@@ -24,7 +24,6 @@ export default function Page() {
   // ===== Навигация (слайды) =====
   const slidesRef = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
-  const lockRef = useRef(false);
 
   const slides = useMemo(
     () => ["Главная", "Услуги", "Кейсы", "Контакты"],
@@ -55,43 +54,36 @@ export default function Page() {
       const max = slidesEl.scrollHeight - slidesEl.clientHeight;
       const pct = max > 0 ? slidesEl.scrollTop / max : 0;
       const newCurrent = Math.round(pct * (slides.length - 1));
-      if (newCurrent !== current) setCurrent(newCurrent);
+      setCurrent((prev) => (prev !== newCurrent ? newCurrent : prev));
       if (progressBarRef.current) {
         progressBarRef.current.style.width = `${pct * 100}%`;
       }
     };
     slidesEl.addEventListener("scroll", onScroll, { passive: true });
     return () => slidesEl.removeEventListener("scroll", onScroll);
-  }, [current, slides.length]);
+  }, [slides.length]);
 
-  // Wheel + клавиатура
+  // Клавиатура: стрелки вверх/вниз для переключения слайдов, Escape для закрытия модалок/чата.
+  // Wheel НЕ перехватываем — пусть нативный scroll-snap сам плавно снапает.
+  // Это убирает «дёрганье» от двойной прокрутки (нативная + программная) и
+  // делает скролл на трекпадах плавным.
   useEffect(() => {
-    const onWheel = (e: WheelEvent) => {
-      if (lockRef.current) return;
-      if (caseModalOpen || serviceModalOpen) return;
-      const chatEl = chatPanelRef.current;
-      if (chatOpen && chatEl && chatEl.contains(e.target as Node)) return;
-      lockRef.current = true;
-      setTimeout(() => (lockRef.current = false), 700);
-      if (e.deltaY > 0) goToSlide(current + 1);
-      else goToSlide(current - 1);
-    };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown") goToSlide(current + 1);
-      if (e.key === "ArrowUp") goToSlide(current - 1);
-      if (e.key === "Escape") {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        goToSlide(current + 1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        goToSlide(current - 1);
+      } else if (e.key === "Escape") {
         if (lightboxOpen) setLightboxOpen(false);
         else if (caseModalOpen) setCaseModalOpen(false);
         else if (serviceModalOpen) setServiceModalOpen(false);
         else if (chatOpen) setChatOpen(false);
       }
     };
-    window.addEventListener("wheel", onWheel, { passive: true });
     window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   });
 
   // ===== Анимация счётчиков =====
