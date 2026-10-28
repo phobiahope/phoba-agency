@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import ZAI from "z-ai-web-dev-sdk";
 import { buildAgencyContextForAI } from "@/lib/agency-data";
 
 export const runtime = "nodejs";
@@ -62,17 +61,64 @@ ${buildAgencyContextForAI()}
 == Поведение в начале диалога ==
 Когда клиент поздоровался или только открыл чат — поприветствуй его от лица Анны, скажи что ты менеджер Phoba Agency, и задай первый мягкий вопрос: чем занимаетесь / что хотите сделать. Не вываливай сразу все услуги.`;
 
-// Глобальный кэш инстанса ZAI — переиспользуем между запросами.
-let zaiPromise: Promise<Awaited<ReturnType<typeof ZAI.create>>> | null = null;
+/**
+ * Конфигурация LLM-провайдера берётся из переменных окружения:
+ *   ZAI_BASE_URL  — base URL API (с /v1 в конце), по умолчанию https://api.z.ai/api/v1
+ *   ZAI_API_KEY   — API-ключ провайдера (для Z.ai можно использовать JWT-токен)
+ *   ZAI_MODEL     — (необязательно) название модели, по умолчанию glm-4.6
+ *   ZAI_CHAT_ID   — (необязательно) X-Chat-Id заголовок для internal API Z.ai
+ *   ZAI_USER_ID   — (необязательно) X-User-Id заголовок для internal API Z.ai
+ *
+ * На Vercel: Settings → Environment Variables → добавь ZAI_API_KEY.
+ * Локально: создай файл .env.local со строкой ZAI_API_KEY=твой_ключ.
+ */
 
-async function getZAI() {
-  if (!zaiPromise) {
-    zaiPromise = ZAI.create();
-  }
-  return zaiPromise;
+const DEFAULT_BASE_URL = "https://api.z.ai/api/v1";
+const DEFAULT_MODEL = "glm-4.6";
+
+function getConfig() {
+  const baseUrl = (process.env.ZAI_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
+  const apiKey = process.env.ZAI_API_KEY;
+  const token = process.env.ZAI_TOKEN; // для Z.ai internal API (X-Token)
+  const model = process.env.ZAI_MODEL || DEFAULT_MODEL;
+  const chatId = process.env.ZAI_CHAT_ID;
+  const userId = process.env.ZAI_USER_ID;
+  return { baseUrl, apiKey, token, model, chatId, userId };
+}
+
+/**
+ * Строим заголовки запроса к LLM.
+ * Для Z.ai internal API (если заданы token/chatId/userId) добавляем X-заголовки.
+ * Для обычных OpenAI-совместимых провайдеров (OpenAI, OpenRouter, DeepSeek)
+ * достаточно стандартного Authorization: Bearer.
+ */
+function buildHeaders(cfg: ReturnType<typeof getConfig>): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${cfg.apiKey}`,
+    "X-Z-AI-From": "Z",
+  };
+  // Z.ai internal API требует эти заголовки. Добавляем только если заданы.
+  if (cfg.token) headers["X-Token"] = cfg.token;
+  if (cfg.chatId) headers["X-Chat-Id"] = cfg.chatId;
+  if (cfg.userId) headers["X-User-Id"] = cfg.userId;
+  return headers;
 }
 
 export async function POST(req: NextRequest) {
+  const cfg = getConfig();
+
+  if (!cfg.apiKey) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error:
+          "ИИ-ассистент не сконфигурирован. На Vercel: Settings → Environment Variables → добавь ZAI_API_KEY. Локально: создай файл .env.local со строкой ZAI_API_KEY=твой_ключ.",
+      },
+      { status: 500 }
+    );
+  }
+
   try {
     const body = (await req.json().catch(() => null)) as
       | { messages?: ChatMessage[]; message?: string }
@@ -86,7 +132,6 @@ export async function POST(req: NextRequest) {
     }
 
     // Поддерживаем два формата: { message } (одно сообщение) или { messages[] } (история).
-    // Если пришла история — берём её, иначе — одно сообщение.
     let messages: ChatMessage[];
 
     if (Array.isArray(body.messages) && body.messages.length > 0) {
@@ -105,23 +150,46 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Ограничиваем длину истории, чтобы не раздувать контекст.
-    // Оставляем системный промпт + последние 12 сообщений.
+    // Ограничиваем длину истории — системный промпт + последние 12 сообщений.
     if (messages.length > 12) {
       messages = messages.slice(-12);
     }
 
-    const zai = await getZAI();
-
-    const completion = await zai.chat.completions.create({
-      messages: [
-        { role: "assistant", content: SYSTEM_PROMPT },
-        ...messages,
-      ],
-      thinking: { type: "disabled" },
+    // Прямой вызов OpenAI-совместимого API.
+    // Работает с: Z.ai, OpenAI, OpenRouter, DeepSeek, Together AI,
+    // GigaChat (с своим baseUrl), локальным Ollama и любым другим
+    // провайдером, поддерживающим /v1/chat/completions.
+    const apiResponse = await fetch(`${cfg.baseUrl}/chat/completions`, {
+      method: "POST",
+      headers: buildHeaders(cfg),
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...messages,
+        ],
+        temperature: 0.7,
+        max_tokens: 1024,
+        thinking: { type: "disabled" },
+      }),
     });
 
-    const content = completion.choices?.[0]?.message?.content?.trim();
+    if (!apiResponse.ok) {
+      const errText = await apiResponse.text().catch(() => "");
+      console.error(
+        `[/api/chat] LLM API ${apiResponse.status}: ${errText.slice(0, 500)}`
+      );
+      return NextResponse.json(
+        {
+          ok: false,
+          error: `LLM-провайдер вернул ошибку ${apiResponse.status}. Проверь, что ZAI_API_KEY и ZAI_BASE_URL заданы правильно.`,
+        },
+        { status: 502 }
+      );
+    }
+
+    const data = await apiResponse.json();
+    const content: string | undefined = data?.choices?.[0]?.message?.content?.trim();
 
     if (!content) {
       return NextResponse.json(
@@ -136,8 +204,7 @@ export async function POST(req: NextRequest) {
     // Детектим, что в ответе есть упоминание Telegram-контакта — фронтенд
     // в этом случае покажет кнопку "Написать в Telegram".
     const mentionsTelegram =
-      /@cursedfantasy/i.test(content) ||
-      /telegram/i.test(content);
+      /@cursedfantasy/i.test(content) || /telegram/i.test(content);
 
     return NextResponse.json({
       ok: true,
@@ -151,7 +218,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         ok: false,
-        error: `Не удалось получить ответ от ассистента: ${message}`,
+        error: `Не удалось связаться с LLM-провайдером: ${message}`,
       },
       { status: 500 }
     );

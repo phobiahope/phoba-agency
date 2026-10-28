@@ -13,8 +13,9 @@
 
 - **Next.js 16** (App Router) + **TypeScript 5**
 - **Tailwind CSS 4** + **shadcn/ui**
-- **z-ai-web-dev-sdk** — LLM-провайдер для ИИ-ассистента (используется только на бэкенде, в `/api/chat`)
-- **Prisma ORM** (SQLite локально)
+- **LLM через прямой fetch к OpenAI-совместимому API** (по умолчанию Z.ai / GLM-4.6,
+  можно переключить на OpenAI, OpenRouter, DeepSeek и т.д. через переменные окружения)
+- **Prisma ORM** (SQLite локально; на Vercel — Postgres)
 
 ## Запуск локально
 
@@ -23,16 +24,36 @@
 npm install        # или: bun install / pnpm install / yarn
 
 # 2. Скопировать переменные окружения
-cp .env.example .env
+cp .env.example .env.local
 
-# 3. Применить схему БД
+# 3. ВПИСАТЬ API-ключ в .env.local (ОБЯЗАТЕЛЬНО!)
+#    Открой .env.local в редакторе и заполни ZAI_API_KEY="..."
+#    Где взять ключ — см. ниже.
+
+# 4. Применить схему БД (если нужна БД — для базовой работы не обязательно)
 npx prisma db push
 
-# 4. Запустить dev-сервер
+# 5. Запустить dev-сервер
 npm run dev
 ```
 
 Открой http://localhost:3000
+
+### Где взять API-ключ для ИИ
+
+ИИ-ассистент использует любой OpenAI-совместимый API. По умолчанию
+работает с **Z.ai** (https://z.ai). Получить ключ:
+
+1. Зайди на https://z.ai → зарегистрируйся
+2. Личный кабинет → API-ключи → создай новый ключ
+3. Скопируй ключ (начинается с `...`)
+4. Вставь в `.env.local`:
+   ```
+   ZAI_API_KEY="твой_ключ"
+   ```
+
+Можно использовать и других провайдеров — поменяй `ZAI_BASE_URL` и `ZAI_MODEL`
+в `.env.local` (см. `.env.example` с примерами для OpenAI, OpenRouter, DeepSeek и т.д.).
 
 ## Деплой на Vercel
 
@@ -42,8 +63,12 @@ Vercel — рекомендуемый хостинг, поддерживает N
 2. Зайди на [vercel.com](https://vercel.com) → залогинься через GitHub.
 3. **Add New... → Project** → выбери репозиторий.
 4. Framework Preset: **Next.js** (определится автоматически).
-5. Environment Variables → добавь `DATABASE_URL` (см. ниже).
-6. **Deploy**.
+5. Environment Variables → **ОБЯЗАТЕЛЬНО добавь `ZAI_API_KEY`** (без него ИИ не работает):
+   - Key: `ZAI_API_KEY`
+   - Value: твой API-ключ от Z.ai (или другого провайдера)
+6. (необязательно) Добавь `DATABASE_URL` = `file:./db/custom.db` — но можно пропустить,
+   БД для базовой работы не нужна.
+7. **Deploy**.
 
 Подробная инструкция — в разделе **«Инструкция по деплою»** ниже.
 
