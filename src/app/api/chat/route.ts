@@ -62,23 +62,37 @@ ${buildAgencyContextForAI()}
 Когда клиент поздоровался или только открыл чат — поприветствуй его от лица Анны, скажи что ты менеджер Phoba Agency, и задай первый мягкий вопрос: чем занимаетесь / что хотите сделать. Не вываливай сразу все услуги.`;
 
 /**
- * Конфигурация LLM-провайдера берётся из переменных окружения:
- *   ZAI_BASE_URL  — base URL API (с /v1 в конце), по умолчанию https://api.z.ai/api/v1
- *   ZAI_API_KEY   — API-ключ провайдера (для Z.ai можно использовать JWT-токен)
- *   ZAI_MODEL     — (необязательно) название модели, по умолчанию glm-4.6
- *   ZAI_CHAT_ID   — (необязательно) X-Chat-Id заголовок для internal API Z.ai
- *   ZAI_USER_ID   — (необязательно) X-User-Id заголовок для internal API Z.ai
+ * Конфигурация LLM-провайдера.
  *
- * На Vercel: Settings → Environment Variables → добавь ZAI_API_KEY.
+ * По умолчанию используем Google Gemini (ключ ниже встроен как fallback).
+ * Можно переопределить через переменные окружения:
+ *   ZAI_API_KEY   — API-ключ провайдера
+ *   ZAI_BASE_URL  — base URL API (с /v1 или /v1beta/openai в конце)
+ *   ZAI_MODEL     — название модели
+ *   ZAI_TOKEN, ZAI_CHAT_ID, ZAI_USER_ID — доп. заголовки Z.ai internal API
+ *
+ * На Vercel: Settings → Environment Variables.
  * Локально: создай файл .env.local со строкой ZAI_API_KEY=твой_ключ.
+ *
+ * ВАЖНО: Google Gemini блокирует запросы из некоторых регионов (РФ, Беларусь, Китай).
+ * Если получаешь ошибку "User location is not supported" — включи VPN (США/Европа).
  */
 
-const DEFAULT_BASE_URL = "https://api.z.ai/api/v1";
-const DEFAULT_MODEL = "glm-4.6";
+// Ключ Gemini по умолчанию (можно переопределить через env ZAI_API_KEY).
+// На Vercel ОБЯЗАТЕЛЬНО переопредели через Environment Variables,
+// иначе ключ будет публичным в исходном коде.
+const DEFAULT_API_KEY =
+  process.env.ZAI_API_KEY ||
+  "AQ.Ab8RN6L6ghzslPJbGlJvOVymM7OKkbzIUWHwhRgqfOWV_ZPozg";
+
+const DEFAULT_BASE_URL =
+  process.env.ZAI_BASE_URL ||
+  "https://generativelanguage.googleapis.com/v1beta/openai";
+const DEFAULT_MODEL = process.env.ZAI_MODEL || "gemini-3.8-flash";
 
 function getConfig() {
   const baseUrl = (process.env.ZAI_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
-  const apiKey = process.env.ZAI_API_KEY;
+  const apiKey = process.env.ZAI_API_KEY || DEFAULT_API_KEY;
   const token = process.env.ZAI_TOKEN; // для Z.ai internal API (X-Token)
   const model = process.env.ZAI_MODEL || DEFAULT_MODEL;
   const chatId = process.env.ZAI_CHAT_ID;
@@ -89,14 +103,12 @@ function getConfig() {
 /**
  * Строим заголовки запроса к LLM.
  * Для Z.ai internal API (если заданы token/chatId/userId) добавляем X-заголовки.
- * Для обычных OpenAI-совместимых провайдеров (OpenAI, OpenRouter, DeepSeek)
- * достаточно стандартного Authorization: Bearer.
+ * Для Gemini/OpenAI/OpenRouter/DeepSeek — стандартный Authorization: Bearer.
  */
 function buildHeaders(cfg: ReturnType<typeof getConfig>): Record<string, string> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${cfg.apiKey}`,
-    "X-Z-AI-From": "Z",
   };
   // Z.ai internal API требует эти заголовки. Добавляем только если заданы.
   if (cfg.token) headers["X-Token"] = cfg.token;
@@ -170,7 +182,6 @@ export async function POST(req: NextRequest) {
         ],
         temperature: 0.7,
         max_tokens: 1024,
-        thinking: { type: "disabled" },
       }),
     });
 
@@ -179,11 +190,31 @@ export async function POST(req: NextRequest) {
       console.error(
         `[/api/chat] LLM API ${apiResponse.status}: ${errText.slice(0, 500)}`
       );
+
+      // Человекопонятные сообщения для частых ошибок Gemini.
+      let userMessage = `LLM-провайдер вернул ошибку ${apiResponse.status}.`;
+
+      if (apiResponse.status === 400 || apiResponse.status === 403) {
+        if (/location is not supported/i.test(errText)) {
+          userMessage =
+            "Google Gemini заблокировал запрос по твоему региону. Включи VPN (США/Европа) и попробуй снова.";
+        } else if (/API key not valid|API_KEY_INVALID/i.test(errText)) {
+          userMessage =
+            "Неверный API-ключ. Проверь, что ZAI_API_KEY задан правильно.";
+        } else if (/model.*not.*available|not found/i.test(errText)) {
+          userMessage =
+            "Указанная модель недоступна. Попробуй gemini-3.8-flash или gemini-2.5-flash (укажи через ZAI_MODEL).";
+        } else if (/quota|rate limit|429/i.test(errText)) {
+          userMessage =
+            "Превышен лимит запросов к Gemini (бесплатный tier: 15 запросов/мин, 1500/день). Подожди минуту.";
+        }
+      } else if (apiResponse.status === 429) {
+        userMessage =
+          "Превышен лимит запросов к Gemini. Подожди минуту и попробуй снова.";
+      }
+
       return NextResponse.json(
-        {
-          ok: false,
-          error: `LLM-провайдер вернул ошибку ${apiResponse.status}. Проверь, что ZAI_API_KEY и ZAI_BASE_URL заданы правильно.`,
-        },
+        { ok: false, error: userMessage },
         { status: 502 }
       );
     }
