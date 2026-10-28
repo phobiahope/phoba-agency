@@ -1,0 +1,1915 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Phoba Agency</title>
+
+  <style>
+    :root{
+      --bg:#0a0c10;
+      --bg-2:#0e1117;
+      --panel-bg: rgba(255,255,255,0.04);
+      --panel-border: rgba(255,255,255,0.08);
+      --glass-blur: 18px;
+      --accent: #ffffff;
+      --muted: rgba(255,255,255,0.55);
+      --dim: rgba(255,255,255,0.35);
+      --shadow: 0 20px 60px rgba(0,0,0,0.55);
+      --grad-1: #6366f1;
+      --grad-2: #8b5cf6;
+      --grad-3: #ec4899;
+      --grad-blue: #06b6d4;
+      --cursor-glow: rgba(139,92,246,0.18);
+      --site-font: "SF Pro Rounded", "Nunito Sans", "Segoe UI Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    @font-face {
+      font-family: 'SF Pro Rounded';
+      src: url('SF-Pro-Rounded.ttf') format('truetype');
+      font-weight: 400 800;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body, h1, h2, h3, h4, h5, h6, p, input, textarea, button {
+      font-family: var(--site-font);
+      letter-spacing: clamp(0.3px, 0.25vw, 1.5px);
+    }
+
+    html, body{
+      min-height:100%;
+      margin:0;
+      padding:0;
+      background: var(--bg);
+      color:var(--accent);
+      overflow-x:hidden;
+      overflow-y:hidden;
+    }
+    .bg-blobs{
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      overflow:hidden;
+      pointer-events:none;
+    }
+    .blob{
+      position:absolute;
+      border-radius:50%;
+      filter: blur(80px);
+      opacity:0.35;
+      animation: float 18s ease-in-out infinite;
+    }
+    .blob-1{
+      width:520px;height:520px;
+      background: radial-gradient(circle, #6366f1, transparent 70%);
+      top:-100px;left:-100px;
+    }
+    .blob-2{
+      width:600px;height:600px;
+      background: radial-gradient(circle, #ec4899, transparent 70%);
+      bottom:-150px;right:-150px;
+      animation-delay:-6s;
+    }
+    .blob-3{
+      width:420px;height:420px;
+      background: radial-gradient(circle, #06b6d4, transparent 70%);
+      top:40%;left:40%;
+      animation-delay:-12s;
+      opacity:0.25;
+    }
+    @keyframes float{
+      0%,100%{ transform: translate(0,0) scale(1); }
+      33%{ transform: translate(60px,-40px) scale(1.08); }
+      66%{ transform: translate(-40px,30px) scale(0.95); }
+    }
+
+    /* Шум поверх для текстуры */
+    body::before{
+      content:"";
+      position:fixed;inset:0;
+      background-image:linear-gradient(180deg, rgba(8,9,12,0.6), rgba(14,17,23,0.5));
+      z-index:-1;
+      pointer-events:none;
+    }
+    body::after{
+      content:"";position:fixed;inset:0;
+      background:rgba(8,9,12,0.55);
+      z-index:-1;
+      pointer-events:none;
+    }
+
+    .progress-bar{
+      position:fixed;
+      top:0;left:0;
+      height:3px;
+      background:linear-gradient(90deg, var(--grad-1), var(--grad-2), var(--grad-3));
+      width:0%;
+      z-index:100;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 12px rgba(139,92,246,0.6);
+    }
+
+    .side-nav{
+      position:fixed;
+      right:24px;
+      top:50%;
+      transform:translateY(-50%);
+      z-index:90;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .nav-dot{
+      width:10px;height:10px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.2);
+      border:none;
+      cursor:pointer;
+      transition:0.3s;
+      position:relative;
+    }
+    .nav-dot.active{
+      background:linear-gradient(135deg, var(--grad-1), var(--grad-2));
+      transform:scale(1.4);
+      box-shadow:0 0 12px rgba(139,92,246,0.7);
+    }
+    .nav-dot::after{
+      content: attr(data-label);
+      position:absolute;
+      right:24px;
+      top:50%;
+      transform:translateY(-50%) translateX(8px);
+      background:rgba(20,22,28,0.95);
+      color:#fff;
+      padding:4px 10px;
+      border-radius:6px;
+      font-size:11px;
+      white-space:nowrap;
+      opacity:0;
+      pointer-events:none;
+      transition:0.25s;
+      border:1px solid rgba(255,255,255,0.1);
+    }
+    .nav-dot:hover::after{
+      opacity:1;
+      transform:translateY(-50%) translateX(0);
+    }
+
+    .slides{
+      height:100vh;
+      width:100vw;
+      display:flex;
+      flex-direction:column;
+      overflow-y:scroll;
+      scroll-snap-type:y mandatory;
+      scroll-behavior:smooth;
+      scrollbar-width:none;
+    }
+    .slides::-webkit-scrollbar{ display:none; }
+
+    .slide{
+      min-height:100svh;
+      scroll-snap-align:start;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:clamp(18px, 6vh, 64px) clamp(14px, 6vw, 72px);
+      box-sizing:border-box;
+      position:relative;
+    }
+
+    .panel{
+      width:min(1100px,100%);
+      max-width:100%;
+      border-radius:24px;
+      background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border:1px solid var(--panel-border);
+      box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,0.06);
+      padding:clamp(24px, 5vw, 52px);
+      position:relative;
+      overflow:hidden;
+      backdrop-filter:blur(var(--glass-blur));
+      -webkit-backdrop-filter:blur(var(--glass-blur));
+    }
+    .panel::before{
+      content:"";
+      position:absolute;
+      top:0;left:0;right:0;
+      height:1px;
+      background:linear-gradient(90deg, transparent, rgba(139,92,246,0.5), transparent);
+    }
+
+    .cta{
+      padding:14px 28px;
+      background:linear-gradient(135deg, var(--grad-1), var(--grad-2));
+      border:none;
+      border-radius:14px;
+      color:white;
+      font-size:15px;
+      cursor:pointer;
+      font-weight:600;
+      transition:0.3s;
+      box-shadow:0 8px 24px rgba(99,102,241,0.35);
+      position:relative;
+      overflow:hidden;
+    }
+    .cta:hover{
+      transform:translateY(-2px);
+      box-shadow:0 12px 32px rgba(99,102,241,0.5);
+    }
+    .cta::after{
+      content:"";
+      position:absolute;
+      top:0;left:-100%;
+      width:100%;height:100%;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition:0.5s;
+    }
+    .cta:hover::after{ left:100%; }
+
+    .cta-ghost{
+      padding:14px 28px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.15);
+      border-radius:14px;
+      color:white;
+      font-size:15px;
+      cursor:pointer;
+      font-weight:600;
+      transition:0.3s;
+    }
+    .cta-ghost:hover{
+      background:rgba(255,255,255,0.12);
+      transform:translateY(-2px);
+    }
+
+
+    .badge{
+      display:inline-block;
+      padding:6px 14px;
+      border-radius:20px;
+      background:rgba(139,92,246,0.12);
+      border:1px solid rgba(139,92,246,0.3);
+      color:#c4b5fd;
+      font-size:12px;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      font-weight:600;
+      margin-bottom:18px;
+    }
+    h1{
+      font-size:clamp(36px, 6vw, 56px);
+      margin:0 0 18px 0;
+      font-weight:800;
+      line-height:1.05;
+      letter-spacing:-1px;
+    }
+    .gradient-text{
+      background:linear-gradient(135deg, #fff 30%, var(--grad-2) 70%, var(--grad-3));
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .lead{ font-size:18px; color:var(--muted); margin-bottom:10px; line-height:1.5; }
+
+    .hero-stats{
+      display:flex;
+      gap:32px;
+      margin-top:36px;
+      flex-wrap:wrap;
+    }
+    .hero-stat{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }
+    .hero-stat-value{
+      font-size:32px;
+      font-weight:800;
+      background:linear-gradient(135deg, #fff, var(--grad-2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .hero-stat-label{
+      font-size:12px;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      color:var(--dim);
+    }
+
+    .services-track{
+      display:flex;
+      gap:18px;
+      transition:transform .7s cubic-bezier(0.16,1,0.3,1);
+      max-width:100%;
+    }
+
+    .service{
+      width:100%;
+      min-width:100%;
+      max-width:100%;
+      background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border:1px solid rgba(255,255,255,0.08);
+      padding:clamp(22px, 4vw, 32px);
+      border-radius:18px;
+      flex:0 0 100%;
+      overflow-wrap:anywhere;
+      transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), background 0.4s, border-color 0.4s, box-shadow 0.4s;
+      cursor:pointer;
+      position:relative;
+      overflow:hidden;
+    }
+    .service::before{
+      content:"";
+      position:absolute;
+      top:-50%;left:-50%;
+      width:200%;height:200%;
+      background:radial-gradient(circle, rgba(139,92,246,0.15), transparent 60%);
+      opacity:0;
+      transition:opacity 0.4s;
+      pointer-events:none;
+    }
+    .service:hover{
+      transform:translateY(-8px);
+      border-color:rgba(139,92,246,0.4);
+      box-shadow:0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(139,92,246,0.2);
+    }
+    .service:hover::before{ opacity:1; }
+
+    .service-icon{
+      width:54px;height:54px;
+      border-radius:14px;
+      background:linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.15));
+      border:1px solid rgba(139,92,246,0.3);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:18px;
+      color:#c4b5fd;
+      transition: transform 0.4s, background 0.4s;
+    }
+    .service:hover .service-icon{
+      transform:scale(1.1) rotate(-5deg);
+      background:linear-gradient(135deg, rgba(99,102,241,0.35), rgba(139,92,246,0.25));
+    }
+    .service h3{
+      margin:0 0 10px 0;
+      font-size:22px;
+      font-weight:700;
+    }
+    .service p{
+      margin:0 0 16px 0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.5;
+    }
+    .service-arrow{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color:#c4b5fd;
+      font-size:13px;
+      font-weight:600;
+      transition:gap 0.3s;
+    }
+    .service:hover .service-arrow{ gap:10px; }
+
+    .services-wrapper{
+      position:relative;
+      width:100%;
+      overflow:hidden;
+      padding:0 58px;
+    }
+
+    .carousel-arrow{
+      position:absolute;
+      top:50%;
+      transform:translateY(-50%);
+      z-index:20;
+      width:44px;height:44px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.18);
+      backdrop-filter:blur(8px);
+      color:white;
+      font-size:28px;
+      font-weight:700;
+      line-height:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0;
+      cursor:pointer;
+      transition:0.25s;
+    }
+    .carousel-arrow span{ display:block; transform:translateY(-2px); }
+    .carousel-arrow:hover{
+      background:rgba(139,92,246,0.3);
+      transform:translateY(-50%) scale(1.1);
+    }
+    .carousel-arrow.left{ left:14px; }
+    .carousel-arrow.right{ right:14px; }
+
+ 
+    .brand{font-weight:700;margin-bottom:8px;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);}
+    .case-thumb{
+      width:100%;
+      height:160px;
+      border-radius:14px;
+      background-size:cover;
+      background-position:center;
+      margin-bottom:16px;
+      position:relative;
+      overflow:hidden;
+      transition:transform 0.5s ease;
+    }
+    .service.clickable:hover .case-thumb{
+      transform:scale(1.05);
+    }
+    .case-thumb::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 100%);
+    }
+    .view-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-top:12px;
+      padding:8px 14px;
+      border-radius:10px;
+      background:rgba(139,92,246,0.15);
+      border:1px solid rgba(139,92,246,0.3);
+      color:#c4b5fd;
+      font-size:13px;
+      font-weight:600;
+      pointer-events:none;
+      transition:0.3s;
+    }
+    .service.clickable:hover .view-btn{
+      background:rgba(139,92,246,0.3);
+    }
+
+
+    .contact-form{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.06);
+      padding:22px;
+      border-radius:16px;
+    }
+    .contact-form input,
+    .contact-form textarea{
+      width:100%;
+      padding:14px;
+      border-radius:12px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.08);
+      color:white;
+      font-size:14px;
+      resize:none;
+      outline:none;
+      transition:0.25s;
+    }
+    .contact-form input:focus,
+    .contact-form textarea:focus{
+      border-color:rgba(139,92,246,0.5);
+      background:rgba(255,255,255,0.06);
+      box-shadow:0 0 0 3px rgba(139,92,246,0.1);
+    }
+    .contact-form button{
+      padding:14px 20px;
+      border-radius:12px;
+      background:linear-gradient(135deg, var(--grad-1), var(--grad-2));
+      border:none;
+      cursor:pointer;
+      color:white;
+      font-weight:600;
+      font-size:15px;
+      transition:0.3s;
+      box-shadow:0 8px 20px rgba(99,102,241,0.3);
+    }
+    .contact-form button:hover{
+      transform:translateY(-2px);
+      box-shadow:0 12px 28px rgba(99,102,241,0.45);
+    }
+    .contact-hint{
+      font-size:13px;
+      color:var(--dim);
+      margin-top:12px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .pulse-dot{
+      width:8px;height:8px;
+      border-radius:50%;
+      background:#10b981;
+      box-shadow:0 0 0 0 rgba(16,185,129,0.5);
+      animation:pulse 2s infinite;
+    }
+    @keyframes pulse{
+      0%{ box-shadow:0 0 0 0 rgba(16,185,129,0.5); }
+      70%{ box-shadow:0 0 0 8px rgba(16,185,129,0); }
+      100%{ box-shadow:0 0 0 0 rgba(16,185,129,0); }
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(5,6,8,0.78);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      z-index:1000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .35s ease;
+    }
+    .modal-backdrop.open{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .modal{
+      width:min(880px,100%);
+      max-height:90vh;
+      overflow-y:auto;
+      border-radius:24px;
+      background:linear-gradient(180deg, rgba(28,30,38,0.98), rgba(14,17,23,0.98));
+      border:1px solid rgba(255,255,255,0.12);
+      box-shadow:0 30px 80px rgba(0,0,0,0.7);
+      padding:clamp(24px,4vw,40px);
+      transform:translateY(30px) scale(0.95);
+      transition:transform .4s cubic-bezier(0.16,1,0.3,1);
+      position:relative;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(139,92,246,0.5) transparent;
+    }
+    .modal::-webkit-scrollbar{ width:6px; }
+    .modal::-webkit-scrollbar-track{ background:transparent; }
+    .modal::-webkit-scrollbar-thumb{
+      background:rgba(139,92,246,0.4);
+      border-radius:3px;
+    }
+    .modal-backdrop.open .modal{
+      transform:translateY(0) scale(1);
+    }
+    .modal-close{
+      position:absolute;
+      top:18px;right:18px;
+      width:40px;height:40px;
+      border-radius:50%;
+      background:rgba(255,255,255,0.08);
+      border:1px solid rgba(255,255,255,0.15);
+      color:white;
+      font-size:22px;
+      line-height:1;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:0.3s;
+      z-index:2;
+    }
+    .modal-close:hover{
+      background:rgba(239,68,68,0.3);
+      transform:rotate(90deg);
+    }
+
+    .modal-icon{
+      width:64px;height:64px;
+      border-radius:18px;
+      background:linear-gradient(135deg, var(--grad-1), var(--grad-2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-bottom:20px;
+      color:white;
+      box-shadow:0 10px 24px rgba(139,92,246,0.35);
+    }
+    .modal-brand{
+      font-size:12px;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      color:var(--dim);
+      margin-bottom:6px;
+    }
+    .modal-title{
+      font-size:clamp(26px,4vw,34px);
+      font-weight:800;
+      margin:0 0 14px 0;
+      line-height:1.1;
+    }
+    .modal-desc{
+      color:rgba(255,255,255,0.75);
+      font-size:15px;
+      line-height:1.7;
+      margin-bottom:24px;
+      max-width:680px;
+    }
+
+    .modal-section-title{
+      font-size:13px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      color:var(--dim);
+      margin:0 0 14px 0;
+      font-weight:600;
+    }
+
+    .modal-stats{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:12px;
+      margin-bottom:24px;
+    }
+    .stat-card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:14px;
+      padding:16px;
+      text-align:center;
+    }
+    .stat-value{
+      font-size:clamp(20px,3vw,26px);
+      font-weight:800;
+      margin-bottom:4px;
+      background:linear-gradient(135deg, #fff, var(--grad-2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .stat-label{
+      font-size:11px;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      color:var(--dim);
+    }
+
+    .modal-includes{
+      list-style:none;
+      padding:0;
+      margin:0 0 24px 0;
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+    }
+    .modal-includes li{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      background:rgba(255,255,255,0.03);
+      border:1px solid rgba(255,255,255,0.06);
+      border-radius:10px;
+      font-size:14px;
+      color:rgba(255,255,255,0.85);
+    }
+    .modal-includes li::before{
+      content:"";
+      width:8px;height:8px;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--grad-1), var(--grad-2));
+      flex-shrink:0;
+    }
+
+    .modal-gallery{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-bottom:24px;
+    }
+    .gallery-item{
+      aspect-ratio:4/3;
+      border-radius:12px;
+      background-size:cover;
+      background-position:center;
+      cursor:pointer;
+      transition:transform .3s ease, box-shadow .3s ease;
+      border:1px solid rgba(255,255,255,0.08);
+    }
+    .gallery-item:hover{
+      transform:scale(1.05);
+      box-shadow:0 10px 24px rgba(0,0,0,0.5);
+    }
+
+    .modal-tags{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:24px;
+    }
+    .modal-tag{
+      padding:6px 14px;
+      border-radius:20px;
+      background:rgba(139,92,246,0.12);
+      border:1px solid rgba(139,92,246,0.3);
+      font-size:12px;
+      color:#c4b5fd;
+      font-weight:500;
+    }
+
+    .modal-footer{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+      padding-top:20px;
+      border-top:1px solid rgba(255,255,255,0.08);
+    }
+    .modal-price{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+      margin-right:auto;
+    }
+    .modal-price-label{
+      font-size:11px;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      color:var(--dim);
+    }
+    .modal-price-value{
+      font-size:22px;
+      font-weight:800;
+      color:#fff;
+    }
+    .modal-cta{
+      padding:14px 24px;
+      border-radius:14px;
+      background:linear-gradient(135deg, var(--grad-1), var(--grad-2));
+      border:none;
+      color:white;
+      font-size:15px;
+      font-weight:600;
+      cursor:pointer;
+      transition:0.3s;
+      box-shadow:0 8px 20px rgba(99,102,241,0.35);
+    }
+    .modal-cta:hover{
+      transform:translateY(-2px);
+      box-shadow:0 12px 28px rgba(99,102,241,0.5);
+    }
+
+
+    .lightbox{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.92);
+      z-index:2000;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .3s ease;
+    }
+    .lightbox.open{
+      opacity:1;
+      pointer-events:auto;
+    }
+    .lightbox img{
+      max-width:90vw;
+      max-height:90vh;
+      border-radius:12px;
+      box-shadow:0 20px 60px rgba(0,0,0,0.8);
+    }
+
+    .chat-toggle{
+      position:fixed;
+      bottom:24px;
+      right:24px;
+      width:60px;height:60px;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--grad-1), var(--grad-2));
+      border:none;
+      cursor:pointer;
+      color:white;
+      box-shadow:0 10px 30px rgba(99,102,241,0.5);
+      z-index:500;
+      transition:0.3s;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .chat-toggle:hover{
+      transform:scale(1.08);
+      box-shadow:0 14px 36px rgba(99,102,241,0.7);
+    }
+    .chat-toggle svg{
+      width:26px;height:26px;
+      transition:transform 0.3s;
+    }
+    .chat-toggle.open svg{
+      transform:rotate(90deg);
+    }
+    .chat-badge{
+      position:absolute;
+      top:-2px;right:-2px;
+      min-width:20px;height:20px;
+      border-radius:10px;
+      background:#ef4444;
+      color:white;
+      font-size:11px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:0 6px;
+      box-shadow:0 4px 10px rgba(239,68,68,0.5);
+      transform:scale(0);
+      transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .chat-badge.show{ transform:scale(1); }
+
+    .chat-panel{
+      position:fixed;
+      bottom:96px;
+      right:24px;
+      width:380px;
+      max-width:calc(100vw - 48px);
+      height:560px;
+      max-height:calc(100vh - 130px);
+      background:linear-gradient(180deg, rgba(24,26,34,0.98), rgba(14,17,23,0.98));
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:22px;
+      box-shadow:0 30px 80px rgba(0,0,0,0.6);
+      backdrop-filter:blur(20px);
+      z-index:550;
+      display:flex;
+      flex-direction:column;
+      transform:translateY(20px) scale(0.95);
+      opacity:0;
+      pointer-events:none;
+      transition:transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.3s;
+      overflow:hidden;
+    }
+    .chat-panel.open{
+      transform:translateY(0) scale(1);
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    .chat-header{
+      padding:18px 20px;
+      background:linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.1));
+      border-bottom:1px solid rgba(255,255,255,0.08);
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .chat-avatar{
+      width:42px;height:42px;
+      border-radius:50%;
+      background:linear-gradient(135deg, var(--grad-1), var(--grad-2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-weight:700;
+      font-size:16px;
+      position:relative;
+      flex-shrink:0;
+    }
+    .chat-avatar::after{
+      content:"";
+      position:absolute;
+      bottom:0;right:0;
+      width:11px;height:11px;
+      border-radius:50%;
+      background:#10b981;
+      border:2px solid #181a22;
+    }
+    .chat-header-info{
+      flex:1;
+    }
+    .chat-header-name{
+      font-size:15px;
+      font-weight:700;
+      color:#fff;
+    }
+    .chat-header-status{
+      font-size:12px;
+      color:#10b981;
+      display:flex;
+      align-items:center;
+      gap:5px;
+    }
+    .chat-close{
+      width:32px;height:32px;
+      border-radius:8px;
+      background:rgba(255,255,255,0.06);
+      border:none;
+      color:white;
+      cursor:pointer;
+      font-size:18px;
+      transition:0.2s;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .chat-close:hover{ background:rgba(255,255,255,0.12); }
+
+    .chat-messages{
+      flex:1;
+      overflow-y:auto;
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(139,92,246,0.4) transparent;
+    }
+    .chat-messages::-webkit-scrollbar{ width:5px; }
+    .chat-messages::-webkit-scrollbar-thumb{
+      background:rgba(139,92,246,0.4);
+      border-radius:3px;
+    }
+
+    .chat-msg{
+      max-width:80%;
+      padding:10px 14px;
+      border-radius:14px;
+      font-size:14px;
+      line-height:1.4;
+      animation: msgIn 0.3s cubic-bezier(0.16,1,0.3,1);
+      word-wrap:break-word;
+    }
+    @keyframes msgIn{
+      from{ opacity:0; transform:translateY(8px); }
+      to{ opacity:1; transform:translateY(0); }
+    }
+    .chat-msg.visitor{
+      align-self:flex-end;
+      background:linear-gradient(135deg, var(--grad-1), var(--grad-2));
+      color:white;
+      border-bottom-right-radius:4px;
+      box-shadow:0 4px 12px rgba(99,102,241,0.3);
+    }
+    .chat-msg.agent{
+      align-self:flex-start;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.08);
+      color:white;
+      border-bottom-left-radius:4px;
+    }
+    .chat-msg-time{
+      font-size:10px;
+      color:rgba(255,255,255,0.5);
+      margin-top:4px;
+      display:block;
+    }
+    .chat-msg.visitor .chat-msg-time{ color:rgba(255,255,255,0.7); }
+
+    .chat-typing{
+      align-self:flex-start;
+      padding:12px 16px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:14px;
+      border-bottom-left-radius:4px;
+      display:none;
+      align-items:center;
+      gap:5px;
+    }
+    .chat-typing.show{ display:flex; }
+    .typing-dot{
+      width:7px;height:7px;
+      border-radius:50%;
+      background:#c4b5fd;
+      animation:typing 1.4s infinite;
+    }
+    .typing-dot:nth-child(2){ animation-delay:0.2s; }
+    .typing-dot:nth-child(3){ animation-delay:0.4s; }
+    @keyframes typing{
+      0%,60%,100%{ transform:translateY(0); opacity:0.4; }
+      30%{ transform:translateY(-6px); opacity:1; }
+    }
+
+    .chat-quick{
+      padding:0 20px 10px 20px;
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+    }
+    .chat-quick-btn{
+      padding:7px 12px;
+      border-radius:14px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.12);
+      color:rgba(255,255,255,0.85);
+      font-size:12px;
+      cursor:pointer;
+      transition:0.2s;
+    }
+    .chat-quick-btn:hover{
+      background:rgba(139,92,246,0.2);
+      border-color:rgba(139,92,246,0.4);
+      color:#c4b5fd;
+    }
+
+    .chat-input-wrap{
+      padding:14px 20px 18px 20px;
+      border-top:1px solid rgba(255,255,255,0.06);
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .chat-input{
+      flex:1;
+      padding:12px 14px;
+      border-radius:14px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.1);
+      color:white;
+      font-size:14px;
+      outline:none;
+      resize:none;
+      max-height:80px;
+      transition:0.25s;
+      font-family:var(--site-font);
+    }
+    .chat-input:focus{
+      border-color:rgba(139,92,246,0.5);
+      background:rgba(255,255,255,0.07);
+      box-shadow:0 0 0 3px rgba(139,92,246,0.1);
+    }
+    .chat-send{
+      width:42px;height:42px;
+      border-radius:12px;
+      background:linear-gradient(135deg, var(--grad-1), var(--grad-2));
+      border:none;
+      color:white;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+      transition:0.2s;
+    }
+    .chat-send:hover{ transform:scale(1.08); }
+    .chat-send svg{ width:18px;height:18px; }
+
+    .chat-demo-note{
+      padding:8px 16px;
+      background:rgba(99,102,241,0.08);
+      border-top:1px solid rgba(99,102,241,0.2);
+      color:#a5b4fc;
+      font-size:11px;
+      text-align:center;
+      line-height:1.4;
+    }
+
+    .cursor-glow{
+      position:fixed;
+      width:300px;height:300px;
+      border-radius:50%;
+      background:radial-gradient(circle, var(--cursor-glow), transparent 70%);
+      pointer-events:none;
+      z-index:1;
+      transform:translate(-50%,-50%);
+      transition:opacity 0.3s;
+      opacity:0;
+      mix-blend-mode:screen;
+    }
+
+    @media(max-width:900px){
+      .panel{
+        padding:24px;
+        border-radius:18px;
+      }
+      .carousel-arrow{
+        width:38px;height:38px;
+        font-size:24px;
+      }
+      .carousel-arrow.left{ left:8px; }
+      .carousel-arrow.right{ right:8px; }
+      .services-wrapper{ padding:0 48px; }
+      .side-nav{ display:none; }
+      .modal-stats{ grid-template-columns:1fr; }
+      .modal-gallery{ grid-template-columns:repeat(2,1fr); }
+      .modal-includes{ grid-template-columns:1fr; }
+      .hero-stats{ gap:20px; }
+    }
+
+    @media(max-width:480px){
+      .slide{ padding:16px 12px; }
+      .panel{ padding:20px; }
+      .chat-panel{
+        bottom:0;right:0;
+        width:100vw;height:100vh;
+        max-height:100vh;
+        border-radius:0;
+      }
+      .modal-gallery{ grid-template-columns:1fr; }
+      .hero-stats{ gap:16px; }
+      .hero-stat-value{ font-size:24px; }
+    }
+  </style>
+</head>
+<body>
+
+
+<div class="bg-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<nav class="side-nav" id="sideNav">
+  <button class="nav-dot active" data-index="0" data-label="Главная"></button>
+  <button class="nav-dot" data-index="1" data-label="Услуги"></button>
+  <button class="nav-dot" data-index="2" data-label="Кейсы"></button>
+  <button class="nav-dot" data-index="3" data-label="Контакты"></button>
+</nav>
+
+
+<div class="slides" id="slides">
+
+  <section class="slide active" data-index="0">
+    <div class="panel">
+      <span class="badge">● Рекламное агентство</span>
+      <h1 class="gradient-text">Phoba Agency</h1>
+      <div class="lead">Создаём кампании, которые запоминаются.</div>
+      <p style="max-width:540px;color:var(--muted);margin:18px 0 0 0;line-height:1.6;">
+        Мы объединяем стратегию, дизайн и технологии, чтобы выводить бренды на новый уровень.
+        От идеи до результата — полный цикл работ под ключ.
+      </p>
+
+      <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;">
+        <button class="cta" onclick="goToSlide(1)">Наши услуги</button>
+        <button class="cta-ghost" onclick="openChat()">Написать в чат</button>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value" data-count="120">0</div>
+          <div class="hero-stat-label">Проектов</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" data-count="48">0</div>
+          <div class="hero-stat-label">Клиентов</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" data-count="7">0</div>
+          <div class="hero-stat-label">Лет на рынке</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" data-count="98">0</div>
+          <div class="hero-stat-label">% Довольных</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="slide" data-index="1">
+    <div class="panel">
+      <span class="badge">Услуги</span>
+      <h1>Что мы <span class="gradient-text">предлагаем</span></h1>
+      <div class="lead" style="margin-bottom:24px;">Нажмите на услугу, чтобы узнать подробности.</div>
+
+      <div class="services-wrapper">
+        <button class="carousel-arrow left" onclick="scrollTrackLeft('servicesTrack')"><span>‹</span></button>
+        <button class="carousel-arrow right" onclick="scrollTrackRight('servicesTrack')"><span>›</span></button>
+        <div class="services-track" id="servicesTrack">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-index="2">
+    <div class="panel">
+      <span class="badge">Портфолио</span>
+      <h1>Наши <span class="gradient-text">кейсы</span></h1>
+      <div class="lead" style="margin-bottom:24px;">Нажмите на кейс, чтобы посмотреть подробности.</div>
+      <div class="services-wrapper">
+        <button class="carousel-arrow left" onclick="scrollTrackLeft('casesTrack')"><span>‹</span></button>
+        <button class="carousel-arrow right" onclick="scrollTrackRight('casesTrack')"><span>›</span></button>
+        <div class="services-track" id="casesTrack">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide" data-index="3">
+    <div class="panel" style="max-width:560px;">
+      <span class="badge">Связаться</span>
+      <h1>Начнём <span class="gradient-text">проект</span></h1>
+      <div class="lead" style="margin-bottom:24px;">Заполните форму или напишите в чат — ответим в течение минуты.</div>
+
+      <form class="contact-form" onsubmit="submitForm(event)">
+        <input type="text" placeholder="Ваше имя" required>
+        <input type="email" placeholder="Email" required>
+        <textarea rows="4" placeholder="Расскажите о проекте"></textarea>
+        <button type="submit">Отправить заявку</button>
+      </form>
+
+      <div class="contact-hint">
+        <span class="pulse-dot"></span>
+        Менеджер онлайн — напишите в чат для моментального ответа
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="modal-backdrop" id="serviceModal" onclick="if(event.target===this) closeModal('serviceModal')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('serviceModal')">×</button>
+    <div class="modal-icon" id="serviceIcon"></div>
+    <div class="modal-brand" id="serviceCategory"></div>
+    <h2 class="modal-title" id="serviceTitle"></h2>
+    <p class="modal-desc" id="serviceDesc"></p>
+
+    <h3 class="modal-section-title">Что входит</h3>
+    <ul class="modal-includes" id="serviceIncludes"></ul>
+
+    <h3 class="modal-section-title">Примеры работ</h3>
+    <div class="modal-gallery" id="serviceGallery"></div>
+
+    <div class="modal-tags" id="serviceTags"></div>
+
+    <div class="modal-footer">
+      <div class="modal-price">
+        <span class="modal-price-label">Стоимость</span>
+        <span class="modal-price-value" id="servicePrice"></span>
+      </div>
+      <button class="modal-cta" onclick="closeModal('serviceModal'); openChat('Хочу узнать подробнее про услугу: ' + document.getElementById('serviceTitle').textContent);">Обсудить проект →</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="caseModal" onclick="if(event.target===this) closeCaseModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeCaseModal()">×</button>
+    <div class="modal-brand" id="modalBrand"></div>
+    <h2 class="modal-title" id="modalTitle"></h2>
+    <p class="modal-desc" id="modalDesc"></p>
+
+    <h3 class="modal-section-title">Результаты</h3>
+    <div class="modal-stats" id="modalStats"></div>
+
+    <h3 class="modal-section-title">Галерея</h3>
+    <div class="modal-gallery" id="modalGallery"></div>
+
+    <div class="modal-tags" id="modalTags"></div>
+
+    <div class="modal-footer">
+      <button class="modal-cta" onclick="closeCaseModal(); openChat('Хочу проект похожий на кейс: ' + document.getElementById('modalTitle').textContent);">Хочу так же →</button>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<button class="chat-toggle" id="chatToggle" onclick="toggleChat()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+  </svg>
+  <span class="chat-badge" id="chatBadge">0</span>
+</button>
+
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-avatar">E</div>
+    <div class="chat-header-info">
+      <div class="chat-header-name">Phoba Agency</div>
+      <div class="chat-header-status">
+        <span style="width:7px;height:7px;border-radius:50%;background:#10b981;display:inline-block;"></span>
+        Онлайн · отвечает за ~1 мин
+      </div>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+
+  <div class="chat-messages" id="chatMessages">
+  </div>
+
+  <div class="chat-typing" id="chatTyping">
+    <div class="typing-dot"></div>
+    <div class="typing-dot"></div>
+    <div class="typing-dot"></div>
+  </div>
+
+  <div class="chat-quick" id="chatQuick">
+    <button class="chat-quick-btn" onclick="sendQuick('Сколько стоит брендинг?')">Цены</button>
+    <button class="chat-quick-btn" onclick="sendQuick('Какие сроки?')">Сроки</button>
+    <button class="chat-quick-btn" onclick="sendQuick('Покажите кейсы')">Кейсы</button>
+    <button class="chat-quick-btn" onclick="sendQuick('Хочу консультацию')">Консультация</button>
+  </div>
+
+  <div class="chat-input-wrap">
+    <textarea class="chat-input" id="chatInput" placeholder="Напишите сообщение..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="chat-send" onclick="sendChatMessage()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </div>
+
+  <div class="chat-demo-note">
+    ответ с обратной стороны пока сделал криво, потом переделаю :D
+  </div>
+</div>
+
+<div class="cursor-glow" id="cursorGlow"></div>
+
+<script>
+const services = [
+  {
+    name: "Брендинг",
+    category: "Стратегия и идентичность",
+    icon: `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a15 15 0 0 1 0 20"></path><path d="M12 2a15 15 0 0 0 0 20"></path><line x1="2" y1="12" x2="22" y2="12"></line></svg>`,
+    short: "Создаём логотип, фирменный стиль и визуальную идентичность для вашего бизнеса.",
+    detailed: "Брендинг — это не просто логотип. Это цельная система, по которой вас будут узнавать. Мы проводим анализ рынка, определяем позиционирование, создаём название (если нужно), разрабатываем логотип и полный фирстиль, а также бренд-бук с правилами использования. На выходе вы получаете готовый инструмент, который можно применять в любых точках контакта с клиентом.",
+    includes: ["Логотип и знаки", "Фирменный стиль", "Brand book (60+ стр.)", "Цветовая палитра", "Типографика", "Шаблоны соцсетей", "Бизнес-карточки", "Презентации"],
+    images: [
+      "https://images.unsplash.com/photo-1626785774573-4b799315345d?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1572044162444-ad60f128bdea?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1606857521015-7f9fcf423740?auto=format&fit=crop&w=600&q=80"
+    ],
+    tags: ["Логотип", "Brand book", "Фирстиль", "Naming"],
+    price: "от 80 000 ₽"
+  },
+  {
+    name: "Таргетинг",
+    category: "Performance-маркетинг",
+    icon: `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>`,
+    short: "Разрабатываем рекламные кампании, которые приносят клиентов, а не показы.",
+    detailed: "Таргетированная реклама в VK, Instagram, Facebook и Telegram. Мы не просто запускаем кампании — мы строим систему. Анализируем вашу аудиторию, сегментируем её, создаём креативы под каждый сегмент, тестируем гипотезы и масштабируем то, что работает. Прозрачная аналитика и отчётность каждую неделю.",
+    includes: ["Анализ аудитории", "Сегментация ЦА", "Создание креативов", "A/B тесты", "Настройка пикселя", "Ретаргетинг", "Еженедельные отчёты", "Оптимизация CPM/CPC"],
+    images: [
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1611926653458-09294b3142bf?auto=format&fit=crop&w=600&q=80"
+    ],
+    tags: ["VK Реклама", "Meta Ads", "Telegram Ads", "Аналитика"],
+    price: "от 35 000 ₽/мес"
+  },
+  {
+    name: "SMM",
+    category: "Соцсети и контент",
+    icon: `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"></path><path d="M3 11v-1a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v1a4 4 0 0 1-4 4H3"></path></svg>`,
+    short: "Ведём соцсети так, чтобы аудитория ждала ваших постов и покупала.",
+    detailed: "Полное ведение социальных сетей: Instagram, VK, Telegram, YouTube. Разрабатываем контент-стратегию, создаём визуал, пишем тексты, снимаем Reels и Stories, общаемся с аудиторией и работаем с комментариями. Цель — не просто публикации, а живое комьюнити вокруг вашего бренда.",
+    includes: ["Контент-стратегия", "Контент-план на месяц", "Дизайн постов", "Тексты и сценарии", "Reels и Stories", "Сообщества и комменты", "Storytelling", "Инфлюенсеры"],
+    images: [
+      "https://images.unsplash.com/photo-1611162617474-5b21e879e113?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1611926653458-09294b3142bf?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1432888622747-4eb9a8efeb4b?auto=format&fit=crop&w=600&q=80"
+    ],
+    tags: ["Instagram", "VK", "Telegram", "Контент"],
+    price: "от 45 000 ₽/мес"
+  },
+  {
+    name: "Аналитика",
+    category: "Data-driven решения",
+    icon: `<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>`,
+    short: "Превращаем данные в решения. Знаем, что работает, а что — нет.",
+    detailed: "Сквозная аналитика и attribution-модели. Подключаем Яндекс.Метрику, Google Analytics 4, настраиваем цели и события, строим дашборды в Power BI или Looker Studio. Находим узкие места в воронке, считаем ROI каждого канала и даём рекомендации по оптимизации бюджета. Маркетинг, который измерим — управляем.",
+    includes: ["Сквозная аналитика", "Настройка Метрики/GA4", "Дашборды (BI)", "Атрибуция каналов", "A/B-тесты", "Расчёт ROI/ROMI", "Отчёты по воронке", "Рекомендации"],
+    images: [
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
+      "https://images.unsplash.com/photo-1543286386-2e659306cd6c?auto=format&fit=crop&w=600&q=80"
+    ],
+    tags: ["Метрика", "GA4", "BI-дашборды", "ROI"],
+    price: "от 25 000 ₽"
+  }
+];
+
+const cases = [
+  {
+    brand: "Nike",
+    title: "Кампания «Run Your City»",
+    desc: "Создали динамичную видео-кампанию с яркой графикой и баннерами для запуска новой линейки беговой одежды. Запуск прошёл одновременно в Instagram, YouTube и наружной рекламе трёх городов.",
+    cover: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1556906781-9a412961c28c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1460353581641-37baddab0fa2?auto=format&fit=crop&w=800&q=80"
+    ],
+    stats: [
+      {value: "2.3M", label: "Охват"},
+      {value: "+45%", label: "Вовлечённость"},
+      {value: "180K", label: "Переходов"}
+    ],
+    tags: ["Видеопродакшн", "Таргетинг", "SMM", "Брендинг"]
+  },
+  {
+    brand: "Adidas",
+    title: "Запуск Ultraboost 22",
+    desc: "Онлайн-продвижение нового продукта через соцсети и инфлюенсеров. Разработали лендинг, серию сторис и Reels, настроили ретаргетинг на горячую аудиторию.",
+    cover: "https://images.unsplash.com/photo-1518002171953-a080ee817e1f?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1600185365483-26d7a4cc7519?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1556906918-c3cd8f5c4060?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1599058917765-a780eda07a3e?auto=format&fit=crop&w=800&q=80"
+    ],
+    stats: [
+      {value: "+60%", label: "Продажи"},
+      {value: "1.8M", label: "Охват"},
+      {value: "12%", label: "Конверсия"}
+    ],
+    tags: ["Лендинг", "Инфлюенсеры", "Таргетинг"]
+  },
+  {
+    brand: "Reebok",
+    title: "Визуал для Instagram",
+    desc: "Разработали стильный визуальный контент и промо-материалы для сайта и Instagram. Создали единый визуальный язык для ленты на 6 месяцев вперёд.",
+    cover: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&w=800&q=80"
+    ],
+    stats: [
+      {value: "+35%", label: "Подписчики"},
+      {value: "8.7%", label: "ER"},
+      {value: "94", label: "Поста"}
+    ],
+    tags: ["SMM", "Дизайн", "Контент"]
+  },
+  {
+    brand: "Kappa",
+    title: "Лендинг кампании SS24",
+    desc: "Создали лендинг и графику для кампании, чтобы бренд выглядел современно и привлекательно. Запустили A/B тесты двух вариантов лендинга и оптимизировали конверсию.",
+    cover: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=800&q=80",
+    images: [
+      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80"
+    ],
+    stats: [
+      {value: "+28%", label: "Конверсия"},
+      {value: "0.8с", label: "Загрузка"},
+      {value: "A/B", label: "Тесты"}
+    ],
+    tags: ["Веб-дизайн", "Разработка", "Аналитика"]
+  }
+];
+
+const servicesTrack = document.getElementById('servicesTrack');
+services.forEach((s, i) => {
+  const card = document.createElement('div');
+  card.className = 'service';
+  card.onclick = () => openServiceModal(i);
+  card.innerHTML = `
+    <div class="service-icon">${s.icon}</div>
+    <h3>${s.name}</h3>
+    <p>${s.short}</p>
+    <span class="service-arrow">Подробнее →</span>
+  `;
+  servicesTrack.appendChild(card);
+});
+
+const casesTrack = document.getElementById('casesTrack');
+cases.forEach((c, i) => {
+  const card = document.createElement('div');
+  card.className = 'service clickable';
+  card.onclick = () => openCaseModal(i);
+  card.innerHTML = `
+    <div class="case-thumb" style="background-image:url('${c.cover}')"></div>
+    <div class="brand">${c.brand}</div>
+    <p style="color:rgba(255,255,255,0.85);font-size:15px;font-weight:600;margin:0 0 8px 0;">${c.title}</p>
+    <p style="color:var(--muted);font-size:13px;">${c.desc.substring(0, 80)}...</p>
+    <span class="view-btn">Смотреть кейс →</span>
+  `;
+  casesTrack.appendChild(card);
+});
+
+function openServiceModal(index){
+  const s = services[index];
+  if(!s) return;
+
+  document.getElementById('serviceIcon').innerHTML = s.icon;
+  document.getElementById('serviceCategory').textContent = s.category;
+  document.getElementById('serviceTitle').textContent = s.name;
+  document.getElementById('serviceDesc').textContent = s.detailed;
+  document.getElementById('servicePrice').textContent = s.price;
+
+  document.getElementById('serviceIncludes').innerHTML = s.includes.map(item => `<li>${item}</li>`).join('');
+
+  document.getElementById('serviceGallery').innerHTML = s.images.map(src => `
+    <div class="gallery-item" style="background-image:url('${src}')" onclick="event.stopPropagation(); openLightbox('${src}')"></div>
+  `).join('');
+
+  document.getElementById('serviceTags').innerHTML = s.tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+
+  document.getElementById('serviceModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function openCaseModal(index){
+  const c = cases[index];
+  if(!c) return;
+
+  document.getElementById('modalBrand').textContent = c.brand;
+  document.getElementById('modalTitle').textContent = c.title;
+  document.getElementById('modalDesc').textContent = c.desc;
+
+  document.getElementById('modalStats').innerHTML = c.stats.map(s => `
+    <div class="stat-card">
+      <div class="stat-value">${s.value}</div>
+      <div class="stat-label">${s.label}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('modalGallery').innerHTML = c.images.map(src => `
+    <div class="gallery-item" style="background-image:url('${src}')" onclick="event.stopPropagation(); openLightbox('${src}')"></div>
+  `).join('');
+
+  document.getElementById('modalTags').innerHTML = c.tags.map(t => `<span class="modal-tag">${t}</span>`).join('');
+
+  document.getElementById('caseModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCaseModal(){
+  document.getElementById('caseModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function openLightbox(src){
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+const slides = [...document.querySelectorAll('.slide')];
+const navDots = [...document.querySelectorAll('.nav-dot')];
+const progressBar = document.getElementById('progressBar');
+let current = 0;
+
+function goToSlide(i){
+  i = Math.max(0, Math.min(slides.length-1, i));
+  current = i;
+  slides[i].scrollIntoView({behavior:'smooth'});
+  updateNav();
+}
+
+function updateNav(){
+  slides.forEach(s=>s.classList.remove('active'));
+  slides[current].classList.add('active');
+  navDots.forEach((d,i)=> d.classList.toggle('active', i===current));
+  progressBar.style.width = ((current / (slides.length-1)) * 100) + '%';
+}
+
+navDots.forEach((dot, i) => {
+  dot.addEventListener('click', () => goToSlide(i));
+});
+
+
+let lock = false;
+window.addEventListener('wheel', e=>{
+  if(lock) return;
+  if(document.getElementById('caseModal').classList.contains('open')) return;
+  if(document.getElementById('serviceModal').classList.contains('open')) return;
+  if(document.getElementById('chatPanel').classList.contains('open') && e.target.closest('#chatPanel')) return;
+  lock = true;
+  setTimeout(()=>lock=false, 700);
+  if(e.deltaY>0) goToSlide(current+1);
+  else goToSlide(current-1);
+});
+
+window.addEventListener('keydown', e=>{
+  if(e.key==='ArrowDown') goToSlide(current+1);
+  if(e.key==='ArrowUp') goToSlide(current-1);
+  if(e.key === 'Escape'){
+    if(document.getElementById('lightbox').classList.contains('open')) closeLightbox();
+    else if(document.getElementById('caseModal').classList.contains('open')) closeCaseModal();
+    else if(document.getElementById('serviceModal').classList.contains('open')) closeModal('serviceModal');
+    else if(document.getElementById('chatPanel').classList.contains('open')) toggleChat();
+  }
+});
+
+const slidesEl = document.getElementById('slides');
+slidesEl.addEventListener('scroll', ()=>{
+  const pct = slidesEl.scrollTop / (slidesEl.scrollHeight - slidesEl.clientHeight);
+  const newCurrent = Math.round(pct * (slides.length-1));
+  if(newCurrent !== current){
+    current = newCurrent;
+    updateNav();
+  }
+  document.documentElement.style.setProperty('--parallax', `${pct * 40}px`);
+});
+
+function animateCounters(){
+  document.querySelectorAll('.hero-stat-value').forEach(el => {
+    const target = parseInt(el.dataset.count);
+    const duration = 1800;
+    const start = performance.now();
+    function tick(now){
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(target * eased);
+      if(t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  });
+}
+setTimeout(animateCounters, 500);
+
+const cursorGlow = document.getElementById('cursorGlow');
+let glowVisible = false;
+window.addEventListener('mousemove', e => {
+  cursorGlow.style.left = e.clientX + 'px';
+  cursorGlow.style.top = e.clientY + 'px';
+  if(!glowVisible){
+    cursorGlow.style.opacity = '1';
+    glowVisible = true;
+  }
+});
+window.addEventListener('mouseleave', () => {
+  cursorGlow.style.opacity = '0';
+  glowVisible = false;
+});
+
+function submitForm(e){
+  e.preventDefault();
+  const form = e.target;
+  const name = form.querySelector('input[type=text]').value;
+  openChat(`Здравствуйте! Меня зовут ${name}, хочу обсудить проект.`);
+  form.reset();
+}
+
+const chatToggle = document.getElementById('chatToggle');
+const chatPanel = document.getElementById('chatPanel');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const chatBadge = document.getElementById('chatBadge');
+const chatTyping = document.getElementById('chatTyping');
+
+let chatOpen = false;
+let unreadCount = 0;
+let chatInitialized = false;
+
+const chatChannel = new BroadcastChannel('phoba-chat-v1');
+
+let myRole = 'visitor';
+let pendingAutoReply = null;
+
+chatChannel.onmessage = (e) => {
+  const data = e.data;
+  if(data.type === 'visitor_message'){
+
+    if(myRole !== 'visitor'){
+      addMessage(data.text, 'agent-incoming', data.time, true);
+    } else {
+      addMessage(data.text, 'agent', data.time);
+    }
+    if(pendingAutoReply) clearTimeout(pendingAutoReply);
+  }
+  else if(data.type === 'agent_message'){
+    addMessage(data.text, 'agent', data.time);
+    if(pendingAutoReply) clearTimeout(pendingAutoReply);
+  }
+  else if(data.type === 'typing'){
+    showTyping();
+  }
+};
+
+function initChat(){
+  if(chatInitialized) return;
+  chatInitialized = true;
+
+  setTimeout(() => {
+    addMessage('👋 Привет! Я Анна, менеджер Phoba Agency. Чем могу помочь?', 'agent');
+  }, 400);
+}
+
+function toggleChat(){
+  chatOpen = !chatOpen;
+  chatPanel.classList.toggle('open', chatOpen);
+  chatToggle.classList.toggle('open', chatOpen);
+
+  if(chatOpen){
+    initChat();
+    unreadCount = 0;
+    updateBadge();
+    setTimeout(() => chatInput.focus(), 300);
+  }
+}
+
+function openChat(prefilledText){
+  if(!chatOpen) toggleChat();
+  if(prefilledText){
+    chatInput.value = prefilledText;
+    autoResize(chatInput);
+    chatInput.focus();
+  }
+}
+
+function addMessage(text, sender, time, fromOtherTab){
+  const msg = document.createElement('div');
+  msg.className = 'chat-msg ' + (sender === 'agent-incoming' ? 'visitor' : sender);
+  const t = new Date(time || Date.now());
+  const timeStr = t.getHours().toString().padStart(2,'0') + ':' + t.getMinutes().toString().padStart(2,'0');
+  msg.innerHTML = `${escapeHtml(text)}<span class="chat-msg-time">${timeStr}</span>`;
+  chatMessages.appendChild(msg);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+
+  if(!chatOpen && (sender === 'agent' || sender === 'agent-incoming')){
+    unreadCount++;
+    updateBadge();
+  }
+}
+
+function escapeHtml(str){
+  return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function updateBadge(){
+  chatBadge.textContent = unreadCount;
+  chatBadge.classList.toggle('show', unreadCount > 0);
+}
+
+function sendChatMessage(){
+  const text = chatInput.value.trim();
+  if(!text) return;
+
+  addMessage(text, 'visitor', Date.now());
+
+  if(myRole !== 'visitor'){
+    chatChannel.postMessage({type: 'agent_message', text, time: Date.now()});
+  } else {
+    chatChannel.postMessage({type: 'visitor_message', text, time: Date.now()});
+
+    showTyping();
+    pendingAutoReply = setTimeout(() => {
+      hideTyping();
+      const reply = getAutoReply(text);
+      addMessage(reply, 'agent', Date.now());
+      chatChannel.postMessage({type: 'agent_message', text: reply, time: Date.now()});
+    }, 1200 + Math.random() * 800);
+  }
+
+  chatInput.value = '';
+  autoResize(chatInput);
+}
+
+function sendQuick(text){
+  chatInput.value = text;
+  sendChatMessage();
+}
+
+function showTyping(){
+  chatTyping.classList.add('show');
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  chatChannel.postMessage({type: 'typing'});
+}
+function hideTyping(){
+  chatTyping.classList.remove('show');
+}
+
+function handleChatKey(e){
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    sendChatMessage();
+  }
+}
+
+function autoResize(el){
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+}
+
+function getAutoReply(text){
+  const t = text.toLowerCase();
+
+  if(/цен|стоим|сколько|букв|стоит|прайс/.test(t))
+    return '💰 Цены зависят от объёма. Брендинг — от 80 000 ₽, таргетинг — от 35 000 ₽/мес, SMM — от 45 000 ₽/мес. Можем сделать кастомное предложение под ваш бюджет. Оставите телефон — пришлю подробный прайс?';
+
+  if(/срок|долго|когда|быстро|дней|недел/.test(t))
+    return '⏱ Сроки: брендинг — 3–5 недель, запуск таргета — 5–7 дней, первое месяц SMM — 7 дней на старт. Срочные проекты делаем в режиме 24/7 за доплату.';
+
+  if(/кейс|портфол|пример|работы|показа/.test(t))
+    return '🎨 У нас более 120 завершённых проектов. Готовлю подборку релевантных кейсов под вашу нишу. Какой сфере ваш бизнес?';
+
+  if(/бренд|логотип|фирмстил|brand book/.test(t))
+    return '🎯 Брендинг — наша сильная сторона. Делаем логотип + полный фирстиль + брендбук за 3–5 недель. Можем показать примеры — откройте вкладку «Кейсы» на сайте.';
+
+  if(/таргет|реклам|vk|insta|facebook|telegram/.test(t))
+    return '🚀 Таргетированная реклама — наше основное направление. Работаем с VK Ads, Meta, Telegram Ads. Средний результат: стоимость заявки −40% к текущей. Какой у вас бюджет на маркетинг?';
+
+  if(/smm|соцсет|инстаграм|пост|контент|reels|stories/.test(t))
+    return '📱 SMM под ключ: стратегия + контент-план + дизайн + Reels + работа с комьюнити. Ведём от 45 000 ₽/мес. Какой соцсетью вы хотите заняться?';
+
+  if(/аналит|метрик|ga4|дашборд|roi/.test(t))
+    return '📊 Сквозная аналитика — от 25 000 ₽. Подключаем Метрику, GA4, строим BI-дашборды и считаем ROI каждого канала. Что у вас сейчас подключено?';
+
+  if(/консульта|звонок|созвон|встреч/.test(t))
+    return '📅 Конечно! Запишу вас на бесплатную консультацию (30 минут, Zoom). Какой день вам удобен — завтра или послезавтра?';
+
+  if(/привет|здравств|добр/.test(t))
+    return '👋 Здравствуйте! Расскажите о вашем проекте — что хотите сделать, какой бюджет и сроки? Подберу оптимальное решение.';
+
+  if(/спасибо|благодар/.test(t))
+    return '😊 Всегда рады! Если появятся вопросы — пишите в любой момент, отвечаем быстро.';
+
+  if(/пока|до свид/.test(t))
+    return '👋 До встречи! Будем на связи.';
+
+  return '👍 Спасибо за обращение! Расскажите подробнее о задаче — какой бизнес, что нужно сделать, бюджет и сроки? Подготовлю персональное предложение.';
+}
+
+function setupLoopCarousel(trackId, gap = 18, speed = 4500){
+  const track = document.getElementById(trackId);
+  if(!track) return;
+
+  const items = [...track.children];
+  if(items.length === 0) return;
+  let w = items[0].getBoundingClientRect().width + gap;
+
+  window.addEventListener('resize', () => {
+    w = items[0].getBoundingClientRect().width + gap;
+    updateTrack();
+  });
+
+
+  items.forEach(item => track.appendChild(item.cloneNode(true)));
+  items.slice().reverse().forEach(item => track.insertBefore(item.cloneNode(true), track.firstChild));
+
+  let index = items.length;
+  let animating = false;
+
+  function updateTrack(){
+    track.style.transition = animating ? 'transform 0.7s cubic-bezier(0.16,1,0.3,1)' : 'none';
+    track.style.transform = `translateX(${-index * w}px)`;
+  }
+
+  function scrollLeft(){
+    if(animating) return;
+    animating = true;
+    index--;
+    updateTrack();
+    setTimeout(() => {
+      if(index < items.length){
+        index += items.length;
+        animating = false;
+        updateTrack();
+      } else animating = false;
+    }, 700);
+  }
+
+  function scrollRight(){
+    if(animating) return;
+    animating = true;
+    index++;
+    updateTrack();
+    setTimeout(() => {
+      if(index >= items.length * 2){
+        index -= items.length;
+        animating = false;
+        updateTrack();
+      } else animating = false;
+    }, 700);
+  }
+
+  const leftBtn = track.parentElement.querySelector('.carousel-arrow.left');
+  const rightBtn = track.parentElement.querySelector('.carousel-arrow.right');
+  if(leftBtn) leftBtn.addEventListener('click', scrollLeft);
+  if(rightBtn) rightBtn.addEventListener('click', scrollRight);
+
+  let autoTimer;
+  function autoScroll(){
+    scrollRight();
+    autoTimer = setTimeout(autoScroll, speed);
+  }
+  const wrapper = track.parentElement;
+  wrapper.addEventListener('mouseenter', () => clearTimeout(autoTimer));
+  wrapper.addEventListener('mouseleave', () => autoTimer = setTimeout(autoScroll, speed));
+
+  autoTimer = setTimeout(autoScroll, speed);
+  updateTrack();
+}
+setupLoopCarousel("servicesTrack", 18, 5000);
+setupLoopCarousel("casesTrack", 18, 5000);
+
+</script>
+
+</body>
+</html>

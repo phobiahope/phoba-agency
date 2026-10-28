@@ -1,0 +1,1511 @@
+/* Phoba Agency — стили сайта
+   Все правила в этом файле либо scoped под .phoba-page, либо являются
+   глобальными настройками, которые сознательно переопределяют Tailwind
+   для этой конкретной страницы. */
+
+:root {
+  --bg: #0a0c10;
+  --bg-2: #0e1117;
+  --panel-bg: rgba(255, 255, 255, 0.04);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 18px;
+  --accent: #ffffff;
+  --muted: rgba(255, 255, 255, 0.55);
+  --dim: rgba(255, 255, 255, 0.35);
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+  --grad-1: #6366f1;
+  --grad-2: #8b5cf6;
+  --grad-3: #ec4899;
+  --grad-blue: #06b6d4;
+  --cursor-glow: rgba(139, 92, 246, 0.18);
+  --site-font: "SF Pro Rounded", "Nunito Sans", "Segoe UI Rounded",
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* ===== Глобальные правила для страницы Phoba ===== */
+.phoba-page {
+  position: relative;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--accent);
+  overflow: hidden;
+  font-family: var(--site-font);
+  letter-spacing: clamp(0.3px, 0.25vw, 1.5px);
+}
+
+.phoba-page * {
+  box-sizing: border-box;
+}
+
+.phoba-page h1,
+.phoba-page h2,
+.phoba-page h3,
+.phoba-page h4,
+.phoba-page h5,
+.phoba-page h6,
+.phoba-page p,
+.phoba-page input,
+.phoba-page textarea,
+.phoba-page button {
+  font-family: var(--site-font);
+  letter-spacing: clamp(0.3px, 0.25vw, 1.5px);
+}
+
+.phoba-page .bg-blobs {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.phoba-page .blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  animation: float 18s ease-in-out infinite;
+}
+
+.phoba-page .blob-1 {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, #6366f1, transparent 70%);
+  top: -100px;
+  left: -100px;
+}
+
+.phoba-page .blob-2 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, #ec4899, transparent 70%);
+  bottom: -150px;
+  right: -150px;
+  animation-delay: -6s;
+}
+
+.phoba-page .blob-3 {
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, #06b6d4, transparent 70%);
+  top: 40%;
+  left: 40%;
+  animation-delay: -12s;
+  opacity: 0.25;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(60px, -40px) scale(1.08);
+  }
+  66% {
+    transform: translate(-40px, 30px) scale(0.95);
+  }
+}
+
+.phoba-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: linear-gradient(
+    180deg,
+    rgba(8, 9, 12, 0.6),
+    rgba(14, 17, 23, 0.5)
+  );
+  z-index: -1;
+  pointer-events: none;
+}
+
+.phoba-page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 9, 12, 0.55);
+  z-index: -1;
+  pointer-events: none;
+}
+
+.phoba-page .progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--grad-1), var(--grad-2), var(--grad-3));
+  width: 0%;
+  z-index: 100;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+}
+
+.phoba-page .side-nav {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.phoba-page .nav-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+  position: relative;
+  padding: 0;
+}
+
+.phoba-page .nav-dot.active {
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+  transform: scale(1.4);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.7);
+}
+
+.phoba-page .nav-dot::after {
+  content: attr(data-label);
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%) translateX(8px);
+  background: rgba(20, 22, 28, 0.95);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.25s;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.phoba-page .nav-dot:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.phoba-page .slides {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.phoba-page .slides::-webkit-scrollbar {
+  display: none;
+}
+
+.phoba-page .slide {
+  min-height: 100svh;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(18px, 6vh, 64px) clamp(14px, 6vw, 72px);
+  box-sizing: border-box;
+  position: relative;
+}
+
+.phoba-page .panel {
+  width: min(1100px, 100%);
+  max-width: 100%;
+  border-radius: 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: clamp(24px, 5vw, 52px);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.phoba-page .panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(139, 92, 246, 0.5),
+    transparent
+  );
+}
+
+.phoba-page .cta {
+  padding: 14px 28px;
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+  border: none;
+  border-radius: 14px;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.phoba-page .cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.5);
+}
+
+.phoba-page .cta::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.phoba-page .cta:hover::after {
+  left: 100%;
+}
+
+.phoba-page .cta-ghost {
+  padding: 14px 28px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.phoba-page .cta-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+
+.phoba-page .badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: #c4b5fd;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.phoba-page h1 {
+  font-size: clamp(36px, 6vw, 56px);
+  margin: 0 0 18px 0;
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -1px;
+}
+
+.phoba-page .gradient-text {
+  background: linear-gradient(
+    135deg,
+    #fff 30%,
+    var(--grad-2) 70%,
+    var(--grad-3)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.phoba-page .lead {
+  font-size: 18px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.phoba-page .hero-stats {
+  display: flex;
+  gap: 32px;
+  margin-top: 36px;
+  flex-wrap: wrap;
+}
+
+.phoba-page .hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.phoba-page .hero-stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff, var(--grad-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.phoba-page .hero-stat-label {
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.phoba-page .services-track {
+  display: flex;
+  gap: 18px;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 100%;
+}
+
+.phoba-page .service {
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: clamp(22px, 4vw, 32px);
+  border-radius: 18px;
+  flex: 0 0 100%;
+  overflow-wrap: anywhere;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s,
+    border-color 0.4s, box-shadow 0.4s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.phoba-page .service::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.15), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+
+.phoba-page .service:hover {
+  transform: translateY(-8px);
+  border-color: rgba(139, 92, 246, 0.4);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(139, 92, 246, 0.2);
+}
+
+.phoba-page .service:hover::before {
+  opacity: 1;
+}
+
+.phoba-page .service-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.2),
+    rgba(139, 92, 246, 0.15)
+  );
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  color: #c4b5fd;
+  transition: transform 0.4s, background 0.4s;
+}
+
+.phoba-page .service:hover .service-icon {
+  transform: scale(1.1) rotate(-5deg);
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.35),
+    rgba(139, 92, 246, 0.25)
+  );
+}
+
+.phoba-page .service h3 {
+  margin: 0 0 10px 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.phoba-page .service p {
+  margin: 0 0 16px 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.phoba-page .service-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #c4b5fd;
+  font-size: 13px;
+  font-weight: 600;
+  transition: gap 0.3s;
+}
+
+.phoba-page .service:hover .service-arrow {
+  gap: 10px;
+}
+
+.phoba-page .services-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 0 58px;
+}
+
+.phoba-page .carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px);
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.phoba-page .carousel-arrow span {
+  display: block;
+  transform: translateY(-2px);
+}
+
+.phoba-page .carousel-arrow:hover {
+  background: rgba(139, 92, 246, 0.3);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.phoba-page .carousel-arrow.left {
+  left: 14px;
+}
+
+.phoba-page .carousel-arrow.right {
+  right: 14px;
+}
+
+.phoba-page .brand {
+  font-weight: 700;
+  margin-bottom: 8px;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.phoba-page .case-thumb {
+  width: 100%;
+  height: 160px;
+  border-radius: 14px;
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.5s ease;
+}
+
+.phoba-page .service.clickable:hover .case-thumb {
+  transform: scale(1.05);
+}
+
+.phoba-page .case-thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+.phoba-page .view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(139, 92, 246, 0.15);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: #c4b5fd;
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: none;
+  transition: 0.3s;
+}
+
+.phoba-page .service.clickable:hover .view-btn {
+  background: rgba(139, 92, 246, 0.3);
+}
+
+.phoba-page .contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 22px;
+  border-radius: 16px;
+}
+
+.phoba-page .contact-form input,
+.phoba-page .contact-form textarea {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: white;
+  font-size: 14px;
+  resize: none;
+  outline: none;
+  transition: 0.25s;
+  font-family: var(--site-font);
+}
+
+.phoba-page .contact-form input:focus,
+.phoba-page .contact-form textarea:focus {
+  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.phoba-page .contact-form button {
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  font-size: 15px;
+  transition: 0.3s;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+.phoba-page .contact-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.45);
+}
+
+.phoba-page .contact-hint {
+  font-size: 13px;
+  color: var(--dim);
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phoba-page .pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.phoba-page .modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 6, 8, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.phoba-page .modal-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.phoba-page .modal {
+  width: min(880px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(28, 30, 38, 0.98),
+    rgba(14, 17, 23, 0.98)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7);
+  padding: clamp(24px, 4vw, 40px);
+  transform: translateY(30px) scale(0.95);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.5) transparent;
+}
+
+.phoba-page .modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.phoba-page .modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.phoba-page .modal::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.4);
+  border-radius: 3px;
+}
+
+.phoba-page .modal-backdrop.open .modal {
+  transform: translateY(0) scale(1);
+}
+
+.phoba-page .modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+  z-index: 2;
+}
+
+.phoba-page .modal-close:hover {
+  background: rgba(239, 68, 68, 0.3);
+  transform: rotate(90deg);
+}
+
+.phoba-page .modal-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  color: white;
+  box-shadow: 0 10px 24px rgba(139, 92, 246, 0.35);
+}
+
+.phoba-page .modal-brand {
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 6px;
+}
+
+.phoba-page .modal-title {
+  font-size: clamp(26px, 4vw, 34px);
+  font-weight: 800;
+  margin: 0 0 14px 0;
+  line-height: 1.1;
+}
+
+.phoba-page .modal-desc {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+  max-width: 680px;
+}
+
+.phoba-page .modal-section-title {
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin: 0 0 14px 0;
+  font-weight: 600;
+}
+
+.phoba-page .modal-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.phoba-page .stat-card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+}
+
+.phoba-page .stat-value {
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 800;
+  margin-bottom: 4px;
+  background: linear-gradient(135deg, #fff, var(--grad-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.phoba-page .stat-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.phoba-page .modal-includes {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.phoba-page .modal-includes li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.phoba-page .modal-includes li::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+  flex-shrink: 0;
+}
+
+.phoba-page .modal-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.phoba-page .gallery-item {
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.phoba-page .gallery-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+
+.phoba-page .modal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.phoba-page .modal-tag {
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  font-size: 12px;
+  color: #c4b5fd;
+  font-weight: 500;
+}
+
+.phoba-page .modal-footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.phoba-page .modal-price {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-right: auto;
+}
+
+.phoba-page .modal-price-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.phoba-page .modal-price-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.phoba-page .modal-cta {
+  padding: 14px 24px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+  border: none;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+}
+
+.phoba-page .modal-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(99, 102, 241, 0.5);
+}
+
+.phoba-page .lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.phoba-page .lightbox.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.phoba-page .lightbox img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+/* ===== Чат-виджет ===== */
+.phoba-page .chat-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+  border: none;
+  cursor: pointer;
+  color: white;
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
+  z-index: 500;
+  transition: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phoba-page .chat-toggle:hover {
+  transform: scale(1.08);
+  box-shadow: 0 14px 36px rgba(99, 102, 241, 0.7);
+}
+
+.phoba-page .chat-toggle svg {
+  width: 26px;
+  height: 26px;
+  transition: transform 0.3s;
+}
+
+.phoba-page .chat-toggle.open svg {
+  transform: rotate(90deg);
+}
+
+.phoba-page .chat-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: #ef4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  box-shadow: 0 4px 10px rgba(239, 68, 68, 0.5);
+  transform: scale(0);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.phoba-page .chat-badge.show {
+  transform: scale(1);
+}
+
+.phoba-page .chat-panel {
+  position: fixed;
+  bottom: 96px;
+  right: 24px;
+  width: 380px;
+  max-width: calc(100vw - 48px);
+  height: 560px;
+  max-height: calc(100vh - 130px);
+  background: linear-gradient(
+    180deg,
+    rgba(24, 26, 34, 0.98),
+    rgba(14, 17, 23, 0.98)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 22px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 550;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
+  overflow: hidden;
+}
+
+.phoba-page .chat-panel.open {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.phoba-page .chat-header {
+  padding: 18px 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.15),
+    rgba(139, 92, 246, 0.1)
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.phoba-page .chat-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.phoba-page .chat-avatar::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid #181a22;
+}
+
+.phoba-page .chat-header-info {
+  flex: 1;
+}
+
+.phoba-page .chat-header-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.phoba-page .chat-header-status {
+  font-size: 12px;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.phoba-page .chat-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.phoba-page .chat-close:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.phoba-page .chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.4) transparent;
+}
+
+.phoba-page .chat-messages::-webkit-scrollbar {
+  width: 5px;
+}
+
+.phoba-page .chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.4);
+  border-radius: 3px;
+}
+
+.phoba-page .chat-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  animation: msgIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+@keyframes msgIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.phoba-page .chat-msg.visitor {
+  align-self: flex-end;
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+  color: white;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.phoba-page .chat-msg.agent {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: white;
+  border-bottom-left-radius: 4px;
+}
+
+.phoba-page .chat-msg-time {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4px;
+  display: block;
+}
+
+.phoba-page .chat-msg.visitor .chat-msg-time {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.phoba-page .chat-typing {
+  align-self: flex-start;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  border-bottom-left-radius: 4px;
+  display: none;
+  align-items: center;
+  gap: 5px;
+}
+
+.phoba-page .chat-typing.show {
+  display: flex;
+}
+
+.phoba-page .typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #c4b5fd;
+  animation: typing 1.4s infinite;
+}
+
+.phoba-page .typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.phoba-page .typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+.phoba-page .chat-quick {
+  padding: 0 20px 10px 20px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.phoba-page .chat-quick-btn {
+  padding: 7px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: var(--site-font);
+}
+
+.phoba-page .chat-quick-btn:hover {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.4);
+  color: #c4b5fd;
+}
+
+.phoba-page .chat-quick-btn.telegram {
+  background: linear-gradient(135deg, #2aabee, #229ed9);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.phoba-page .chat-quick-btn.telegram:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.phoba-page .chat-handoff {
+  padding: 12px 20px;
+  background: linear-gradient(
+    135deg,
+    rgba(42, 171, 238, 0.12),
+    rgba(34, 158, 217, 0.08)
+  );
+  border-top: 1px solid rgba(42, 171, 238, 0.25);
+  border-bottom: 1px solid rgba(42, 171, 238, 0.2);
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.phoba-page .chat-handoff.show {
+  display: flex;
+}
+
+.phoba-page .chat-handoff-title {
+  font-size: 12px;
+  color: #8ecaff;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.phoba-page .chat-handoff-btn {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2aabee, #229ed9);
+  border: none;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow: 0 6px 18px rgba(42, 171, 238, 0.4);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--site-font);
+}
+
+.phoba-page .chat-handoff-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(42, 171, 238, 0.55);
+}
+
+.phoba-page .chat-input-wrap {
+  padding: 14px 20px 18px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.phoba-page .chat-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  outline: none;
+  resize: none;
+  max-height: 80px;
+  transition: 0.25s;
+  font-family: var(--site-font);
+}
+
+.phoba-page .chat-input:focus {
+  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.phoba-page .chat-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.phoba-page .chat-send {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-2));
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: 0.2s;
+}
+
+.phoba-page .chat-send:hover {
+  transform: scale(1.08);
+}
+
+.phoba-page .chat-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.phoba-page .chat-send svg {
+  width: 18px;
+  height: 18px;
+}
+
+.phoba-page .chat-demo-note {
+  padding: 8px 16px;
+  background: rgba(99, 102, 241, 0.08);
+  border-top: 1px solid rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  font-size: 11px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.phoba-page .chat-error {
+  align-self: center;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  text-align: center;
+  max-width: 90%;
+}
+
+.phoba-page .cursor-glow {
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--cursor-glow), transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+
+@media (max-width: 900px) {
+  .phoba-page .panel {
+    padding: 24px;
+    border-radius: 18px;
+  }
+  .phoba-page .carousel-arrow {
+    width: 38px;
+    height: 38px;
+    font-size: 24px;
+  }
+  .phoba-page .carousel-arrow.left {
+    left: 8px;
+  }
+  .phoba-page .carousel-arrow.right {
+    right: 8px;
+  }
+  .phoba-page .services-wrapper {
+    padding: 0 48px;
+  }
+  .phoba-page .side-nav {
+    display: none;
+  }
+  .phoba-page .modal-stats {
+    grid-template-columns: 1fr;
+  }
+  .phoba-page .modal-gallery {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .phoba-page .modal-includes {
+    grid-template-columns: 1fr;
+  }
+  .phoba-page .hero-stats {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .phoba-page .slide {
+    padding: 16px 12px;
+  }
+  .phoba-page .panel {
+    padding: 20px;
+  }
+  .phoba-page .chat-panel {
+    bottom: 0;
+    right: 0;
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  .phoba-page .modal-gallery {
+    grid-template-columns: 1fr;
+  }
+  .phoba-page .hero-stats {
+    gap: 16px;
+  }
+  .phoba-page .hero-stat-value {
+    font-size: 24px;
+  }
+}
