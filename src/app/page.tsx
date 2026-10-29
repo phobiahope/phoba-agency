@@ -129,6 +129,50 @@ export default function Page() {
     };
   }, []);
 
+  // ===== Reveal-анимация при попадании элементов в viewport =====
+  // Используем IntersectionObserver: при попадании элемента с [data-reveal]
+  // в зону видимости добавляем класс .is-visible, который запускает CSS-анимацию.
+  useEffect(() => {
+    const slidesEl = slidesRef.current;
+    if (!slidesEl) return;
+
+    // Собираем все элементы с data-reveal внутри .slides
+    const revealEls = slidesEl.querySelectorAll<HTMLElement>("[data-reveal]");
+    if (revealEls.length === 0) return;
+
+    // Поддержка prefers-reduced-motion: сразу показываем всё без анимации
+    if (
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      revealEls.forEach((el) => el.classList.add("is-visible"));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            // После анимации перестаём следить — экономим ресурсы
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        root: slidesEl,
+        threshold: 0.15, // 15% элемента видно → запускаем анимацию
+        rootMargin: "0px 0px -50px 0px", // немного раньше, чем элемент попадёт в зону
+      }
+    );
+
+    revealEls.forEach((el) => observer.observe(el));
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   // ===== Модалки услуг и кейсов =====
   const [serviceModalOpen, setServiceModalOpen] = useState(false);
   const [activeService, setActiveService] = useState(0);
@@ -491,6 +535,8 @@ export default function Page() {
             <h1 className="gradient-text">Phoba Agency</h1>
             <div className="lead">Создаём кампании, которые запоминаются.</div>
             <p
+              data-reveal
+              data-reveal-delay={1}
               style={{
                 maxWidth: 540,
                 color: "var(--muted)",
@@ -504,6 +550,8 @@ export default function Page() {
             </p>
 
             <div
+              data-reveal
+              data-reveal-delay={2}
               style={{
                 display: "flex",
                 gap: 12,
@@ -559,7 +607,7 @@ export default function Page() {
               Нажмите на услугу, чтобы узнать подробности.
             </div>
 
-            <div className="services-wrapper">
+            <div className="services-wrapper" data-reveal data-reveal-delay={2}>
               <button
                 className="carousel-arrow left"
                 aria-label="Назад"
@@ -605,7 +653,7 @@ export default function Page() {
             <div className="lead" style={{ marginBottom: 24 }}>
               Нажмите на кейс, чтобы посмотреть подробности.
             </div>
-            <div className="services-wrapper">
+            <div className="services-wrapper" data-reveal data-reveal-delay={2}>
               <button
                 className="carousel-arrow left"
                 aria-label="Назад"
@@ -665,7 +713,7 @@ export default function Page() {
               определиться с услугой и переведёт к менеджеру.
             </div>
 
-            <form className="contact-form" onSubmit={submitForm}>
+            <form className="contact-form" onSubmit={submitForm} data-reveal data-reveal-delay={2}>
               <input type="text" placeholder="Ваше имя" required />
               <input type="email" placeholder="Email" required />
               <textarea
@@ -675,7 +723,7 @@ export default function Page() {
               <button type="submit">Отправить заявку</button>
             </form>
 
-            <div className="contact-hint">
+            <div className="contact-hint" data-reveal data-reveal-delay={3}>
               <span className="pulse-dot" />
               Менеджер онлайн — напишите в чат, ассистент ответит за ~1 минуту
             </div>

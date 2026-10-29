@@ -1521,3 +1521,508 @@ body {
     font-size: 24px;
   }
 }
+
+/* ============================================================
+   ПЛАВНЫЕ АНИМАЦИИ — добавлены поверх оригинальных стилей
+   ============================================================ */
+
+/* Сглаживание скролла везде внутри .slides */
+.phoba-page .slides {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Глобальное сглаживание всех transition */
+.phoba-page *,
+.phoba-page *::before,
+.phoba-page *::after {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* ===== REVEAL-анимация при попадании в viewport ===== */
+/* По умолчанию элементы скрыты. JS добавляет .is-visible когда они попадают в viewport. */
+
+.phoba-page [data-reveal] {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.phoba-page [data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered-задержки — элементы появляются по очереди */
+.phoba-page [data-reveal][data-reveal-delay="1"] {
+  transition-delay: 0.1s;
+}
+.phoba-page [data-reveal][data-reveal-delay="2"] {
+  transition-delay: 0.2s;
+}
+.phoba-page [data-reveal][data-reveal-delay="3"] {
+  transition-delay: 0.3s;
+}
+.phoba-page [data-reveal][data-reveal-delay="4"] {
+  transition-delay: 0.4s;
+}
+.phoba-page [data-reveal][data-reveal-delay="5"] {
+  transition-delay: 0.5s;
+}
+.phoba-page [data-reveal][data-reveal-delay="6"] {
+  transition-delay: 0.6s;
+}
+
+/* Варианты направления */
+.phoba-page [data-reveal="left"] {
+  transform: translateX(-40px);
+}
+.phoba-page [data-reveal="right"] {
+  transform: translateX(40px);
+}
+.phoba-page [data-reveal="scale"] {
+  transform: scale(0.9);
+}
+.phoba-page [data-reveal="left"].is-visible,
+.phoba-page [data-reveal="right"].is-visible,
+.phoba-page [data-reveal="scale"].is-visible {
+  transform: translate(0, 0) scale(1);
+}
+
+/* ===== Улучшенная анимация badge ===== */
+.phoba-page .badge {
+  animation: badgeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes badgeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== Улучшенная анимация заголовков ===== */
+.phoba-page h1 {
+  animation: titleIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.1s;
+}
+@keyframes titleIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* ===== Улучшенная анимация lead-текста ===== */
+.phoba-page .lead {
+  animation: leadIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.25s;
+}
+@keyframes leadIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Плавное появление CTA-кнопок ===== */
+.phoba-page .cta,
+.phoba-page .cta-ghost {
+  animation: ctaIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.4s;
+}
+@keyframes ctaIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== Staggered-анимация hero-stats ===== */
+.phoba-page .hero-stat {
+  opacity: 0;
+  animation: statIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.phoba-page .hero-stat:nth-child(1) {
+  animation-delay: 0.5s;
+}
+.phoba-page .hero-stat:nth-child(2) {
+  animation-delay: 0.6s;
+}
+.phoba-page .hero-stat:nth-child(3) {
+  animation-delay: 0.7s;
+}
+.phoba-page .hero-stat:nth-child(4) {
+  animation-delay: 0.8s;
+}
+@keyframes statIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== Усиленные hover-эффекты на кнопках ===== */
+.phoba-page .cta,
+.phoba-page .cta-ghost,
+.phoba-page .modal-cta,
+.phoba-page .modal-close,
+.phoba-page .chat-handoff-btn,
+.phoba-page .chat-send,
+.phoba-page .chat-quick-btn {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.phoba-page .cta:active,
+.phoba-page .cta-ghost:active,
+.phoba-page .modal-cta:active,
+.phoba-page .chat-send:active {
+  transform: translateY(0) scale(0.97) !important;
+}
+
+/* ===== Улучшенные hover-эффекты на карточках услуг ===== */
+.phoba-page .service {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.phoba-page .service-icon {
+  transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.5s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.phoba-page .service-arrow {
+  transition: gap 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* ===== Плавное появление модальных окон ===== */
+.phoba-page .modal-backdrop {
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.phoba-page .modal {
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  opacity: 0;
+}
+.phoba-page .modal-backdrop.open .modal {
+  opacity: 1;
+}
+
+/* ===== Анимация элементов внутри модалок при открытии ===== */
+.phoba-page .modal-backdrop.open .modal-icon {
+  animation: iconBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+@keyframes iconBounce {
+  from {
+    opacity: 0;
+    transform: scale(0.5) rotate(-20deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+
+.phoba-page .modal-backdrop.open .modal-title {
+  animation: titleSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+.phoba-page .modal-backdrop.open .modal-desc {
+  animation: titleSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+.phoba-page .modal-backdrop.open .modal-section-title {
+  animation: titleSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.phoba-page .modal-backdrop.open .modal-section-title:nth-of-type(1) {
+  animation-delay: 0.25s;
+}
+.phoba-page .modal-backdrop.open .modal-section-title:nth-of-type(2) {
+  animation-delay: 0.4s;
+}
+.phoba-page .modal-backdrop.open .modal-section-title:nth-of-type(3) {
+  animation-delay: 0.55s;
+}
+@keyframes titleSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.phoba-page .modal-backdrop.open .modal-includes li {
+  animation: listItemIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.phoba-page .modal-backdrop.open .modal-includes li:nth-child(1) {
+  animation-delay: 0.3s;
+}
+.phoba-page .modal-backdrop.open .modal-includes li:nth-child(2) {
+  animation-delay: 0.35s;
+}
+.phoba-page .modal-backdrop.open .modal-includes li:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.phoba-page .modal-backdrop.open .modal-includes li:nth-child(4) {
+  animation-delay: 0.45s;
+}
+.phoba-page .modal-backdrop.open .modal-includes li:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.phoba-page .modal-backdrop.open .modal-includes li:nth-child(6) {
+  animation-delay: 0.55s;
+}
+.phoba-page .modal-backdrop.open .modal-includes li:nth-child(7) {
+  animation-delay: 0.6s;
+}
+.phoba-page .modal-backdrop.open .modal-includes li:nth-child(8) {
+  animation-delay: 0.65s;
+}
+@keyframes listItemIn {
+  from {
+    opacity: 0;
+    transform: translateX(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.phoba-page .modal-backdrop.open .gallery-item {
+  animation: galleryIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.phoba-page .modal-backdrop.open .gallery-item:nth-child(1) {
+  animation-delay: 0.4s;
+}
+.phoba-page .modal-backdrop.open .gallery-item:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.phoba-page .modal-backdrop.open .gallery-item:nth-child(3) {
+  animation-delay: 0.6s;
+}
+@keyframes galleryIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.phoba-page .modal-backdrop.open .stat-card {
+  animation: statCardIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.phoba-page .modal-backdrop.open .stat-card:nth-child(1) {
+  animation-delay: 0.35s;
+}
+.phoba-page .modal-backdrop.open .stat-card:nth-child(2) {
+  animation-delay: 0.45s;
+}
+.phoba-page .modal-backdrop.open .stat-card:nth-child(3) {
+  animation-delay: 0.55s;
+}
+@keyframes statCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.phoba-page .modal-backdrop.open .modal-tag {
+  animation: tagIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.phoba-page .modal-backdrop.open .modal-tag:nth-child(1) {
+  animation-delay: 0.5s;
+}
+.phoba-page .modal-backdrop.open .modal-tag:nth-child(2) {
+  animation-delay: 0.55s;
+}
+.phoba-page .modal-backdrop.open .modal-tag:nth-child(3) {
+  animation-delay: 0.6s;
+}
+.phoba-page .modal-backdrop.open .modal-tag:nth-child(4) {
+  animation-delay: 0.65s;
+}
+@keyframes tagIn {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.phoba-page .modal-backdrop.open .modal-footer {
+  animation: footerIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+@keyframes footerIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Улучшенная анимация чат-панели ===== */
+.phoba-page .chat-panel {
+  transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.phoba-page .chat-toggle {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* Лёгкое «дыхание» для chat-toggle, чтобы привлечь внимание */
+.phoba-page .chat-toggle:not(.open) {
+  animation: chatBreathing 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes chatBreathing {
+  0%,
+  100% {
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
+  }
+  50% {
+    box-shadow: 0 10px 40px rgba(99, 102, 241, 0.8),
+      0 0 0 8px rgba(99, 102, 241, 0.08);
+  }
+}
+
+/* ===== Плавная анимация сообщений чата ===== */
+.phoba-page .chat-msg {
+  animation: msgInSmooth 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+@keyframes msgInSmooth {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===== Улучшенная анимация typing-индикатора ===== */
+.phoba-page .chat-typing.show {
+  animation: msgInSmooth 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===== Улучшенная анимация прогресс-бара ===== */
+.phoba-page .progress-bar {
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* ===== Усиленные hover-эффекты для side-nav ===== */
+.phoba-page .nav-dot {
+  transition: background 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* ===== Плавные hover-эффекты для gallery-item ===== */
+.phoba-page .gallery-item {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* ===== Плавный input focus transition ===== */
+.phoba-page .contact-form input,
+.phoba-page .contact-form textarea,
+.phoba-page .chat-input {
+  transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* ===== Анимация при наведении на logo/badge ===== */
+.phoba-page .badge {
+  transition: background 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.phoba-page .badge:hover {
+  transform: translateY(-2px);
+}
+
+/* ===== Плавная пульсация pulse-dot ===== */
+.phoba-page .pulse-dot {
+  animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1) !important;
+}
+
+/* ===== Плавные градиентные переходы на gradient-text ===== */
+.phoba-page .gradient-text {
+  background-size: 200% 200%;
+  animation: gradientShift 8s ease infinite;
+}
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ===== Поддержка prefers-reduced-motion (доступность) ===== */
+@media (prefers-reduced-motion: reduce) {
+  .phoba-page *,
+  .phoba-page *::before,
+  .phoba-page *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .phoba-page [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
