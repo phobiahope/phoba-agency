@@ -13,8 +13,9 @@
 
 - **Next.js 16** (App Router) + **TypeScript 5**
 - **Tailwind CSS 4** + **shadcn/ui**
-- **LLM через прямой fetch к OpenAI-совместимому API** (по умолчанию Z.ai / GLM-4.6,
-  можно переключить на OpenAI, OpenRouter, DeepSeek и т.д. через переменные окружения)
+- **LLM через прямой fetch к OpenAI-совместимому API** (по умолчанию
+  reformboss.com / qwen-plus, ключ встроен; можно переключить на OpenAI,
+  OpenRouter, DeepSeek, Groq и др. через переменные окружения)
 - **Prisma ORM** (SQLite локально; на Vercel — Postgres)
 
 ## Запуск локально
@@ -23,37 +24,37 @@
 # 1. Установить зависимости
 npm install        # или: bun install / pnpm install / yarn
 
-# 2. Скопировать переменные окружения
-cp .env.example .env.local
-
-# 3. ВПИСАТЬ API-ключ в .env.local (ОБЯЗАТЕЛЬНО!)
-#    Открой .env.local в редакторе и заполни ZAI_API_KEY="..."
-#    Где взять ключ — см. ниже.
-
-# 4. Применить схему БД (если нужна БД — для базовой работы не обязательно)
-npx prisma db push
-
-# 5. Запустить dev-сервер
+# 2. Запустить dev-сервер (ВСЁ! Никаких настроек не нужно)
 npm run dev
 ```
 
-Открой http://localhost:3000
+Открой http://localhost:3000 → нажми на чат → Анна ответит.
 
-### Где взять API-ключ для ИИ
+**API-ключ уже встроен в код** (reformboss.com / qwen-plus) — ничего настраивать
+не нужно. Это сделано специально для удобства запуска.
 
-ИИ-ассистент использует любой OpenAI-совместимый API. По умолчанию
-работает с **Z.ai** (https://z.ai). Получить ключ:
+### Если хочешь использовать другого провайдера
 
-1. Зайди на https://z.ai → зарегистрируйся
-2. Личный кабинет → API-ключи → создай новый ключ
-3. Скопируй ключ (начинается с `...`)
-4. Вставь в `.env.local`:
-   ```
-   ZAI_API_KEY="твой_ключ"
-   ```
+Создай файл `.env.local` в корне проекта и переопредели переменные:
 
-Можно использовать и других провайдеров — поменяй `ZAI_BASE_URL` и `ZAI_MODEL`
-в `.env.local` (см. `.env.example` с примерами для OpenAI, OpenRouter, DeepSeek и т.д.).
+```bash
+# Пример для OpenAI
+ZAI_API_KEY="sk-..."
+ZAI_BASE_URL="https://api.openai.com/v1"
+ZAI_MODEL="gpt-4o-mini"
+
+# Пример для OpenRouter (мульти-провайдер, есть бесплатные модели)
+ZAI_API_KEY="sk-or-v1-..."
+ZAI_BASE_URL="https://openrouter.ai/api/v1"
+ZAI_MODEL="meta-llama/llama-3.3-70b-instruct"
+
+# Пример для Groq (быстрый и бесплатный)
+ZAI_API_KEY="gsk_..."
+ZAI_BASE_URL="https://api.groq.com/openai/v1"
+ZAI_MODEL="llama-3.3-70b-versatile"
+```
+
+Список других провайдеров — см. `.env.example`.
 
 ## Деплой на Vercel
 
@@ -63,12 +64,9 @@ Vercel — рекомендуемый хостинг, поддерживает N
 2. Зайди на [vercel.com](https://vercel.com) → залогинься через GitHub.
 3. **Add New... → Project** → выбери репозиторий.
 4. Framework Preset: **Next.js** (определится автоматически).
-5. Environment Variables → **ОБЯЗАТЕЛЬНО добавь `ZAI_API_KEY`** (без него ИИ не работает):
-   - Key: `ZAI_API_KEY`
-   - Value: твой API-ключ от Z.ai (или другого провайдера)
-6. (необязательно) Добавь `DATABASE_URL` = `file:./db/custom.db` — но можно пропустить,
-   БД для базовой работы не нужна.
-7. **Deploy**.
+5. Environment Variables можно НЕ добавлять — ключ уже встроен в код.
+   (Если хочешь переопределить на свой — добавь `ZAI_API_KEY`, `ZAI_BASE_URL`, `ZAI_MODEL`.)
+6. **Deploy**.
 
 Подробная инструкция — в разделе **«Инструкция по деплою»** ниже.
 
