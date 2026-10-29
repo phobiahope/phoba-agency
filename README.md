@@ -7,28 +7,16 @@
 - Подробно рассказывает о сервисах и кейсах
 - Задаёт уточняющие вопросы по бизнесу, бюджету, срокам
 - Когда понимает задачу — формирует структурированное описание для менеджера
-  и предлагает написать в Telegram `@cursedfantasy`
+  и предлагает написать в Telegram менеджеру
 
 ## Стек
 
-- **Next.js 16** (App Router) + **TypeScript 5**
-- **Tailwind CSS 4** + **shadcn/ui**
-- **LLM через прямой fetch к OpenAI-совместимому API** (по умолчанию
+- Next.js 16** (App Router) + TypeScript 5
+- Tailwind CSS 4** + shadcn/ui
+- LLM через прямой fetch к OpenAI-совместимому API (по умолчанию
   reformboss.com / qwen-plus, ключ встроен; можно переключить на OpenAI,
   OpenRouter, DeepSeek, Groq и др. через переменные окружения)
-- **Prisma ORM** (SQLite локально; на Vercel — Postgres)
-
-## Запуск локально
-
-```bash
-# 1. Установить зависимости
-npm install        # или: bun install / pnpm install / yarn
-
-# 2. Запустить dev-сервер (ВСЁ! Никаких настроек не нужно)
-npm run dev
-```
-
-Открой http://localhost:3000 → нажми на чат → Анна ответит.
+- Prisma ORM (SQLite локально; на Vercel — Postgres)
 
 **API-ключ уже встроен в код** (reformboss.com / qwen-plus) — ничего настраивать
 не нужно. Это сделано специально для удобства запуска.
@@ -38,7 +26,7 @@ npm run dev
 Создай файл `.env.local` в корне проекта и переопредели переменные:
 
 ```bash
-# Пример для OpenAI
+ Пример для OpenAI
 ZAI_API_KEY="sk-..."
 ZAI_BASE_URL="https://api.openai.com/v1"
 ZAI_MODEL="gpt-4o-mini"
@@ -96,20 +84,20 @@ src/
 ├── app/
 │   ├── api/
 │   │   └── chat/
-│   │       └── route.ts     # ИИ-ассистент: приём сообщений, вызов LLM
-│   ├── page.tsx              # Главная страница (4 слайда + чат-виджет)
-│   ├── phoba.css             # Все стили Phoba Agency
-│   ├── layout.tsx            # Корневой layout
-│   └── globals.css           # Tailwind + shadcn
-├── components/ui/            # shadcn/ui компоненты
+│   │       └── route.ts      ИИ-ассистент: приём сообщений, вызов LLM
+│   ├── page.tsx               Главная страница (4 слайда + чат-виджет)
+│   ├── phoba.css              Все стили Phoba Agency
+│   ├── layout.tsx            Корневой layout
+│   └── globals.css            Tailwind + shadcn
+├── components/ui/             shadcn/ui компоненты
 ├── lib/
-│   ├── agency-data.ts        # Данные услуг/кейсов + контекст для LLM
-│   ├── db.ts                 # Prisma client
+│   ├── agency-data.ts        Данные услуг/кейсов + контекст для LLM
+│   ├── db.ts                 Prisma client
 │   └── utils.ts
 └── hooks/
 
 prisma/
-└── schema.prisma             # Схема БД (пустая по факту)
+└── schema.prisma              Схема БД 
 ```
 
 ## Как работает ИИ-ассистент
@@ -120,10 +108,10 @@ prisma/
    `z-ai-web-dev-sdk`.
 3. LLM отвечает от лица «Анны, менеджера», задаёт уточняющие вопросы.
 4. Когда клиент называет услугу + нишу + бюджет/сроки, ассистент формирует
-   структурированное «📋 Описание для менеджера» и предлагает написать в
-   Telegram `@cursedfantasy`.
+   структурированное « Описание для менеджера» и предлагает написать в
+   Telegram менеджеру
 5. В ответе API возвращает флаг `handoffToTelegram: true` — фронт показывает
-   отдельную синюю кнопку со ссылкой `https://t.me/cursedfantasy`.
+   отдельную синюю кнопку со ссылкой `https://t.me/менеджер`.
 
 Системный промпт и контекст редактируются в `src/app/api/chat/route.ts` и
 `src/lib/agency-data.ts`.
