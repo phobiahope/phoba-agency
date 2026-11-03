@@ -84,7 +84,7 @@ const DEFAULT_API_KEY =
 
 const DEFAULT_BASE_URL =
   process.env.ZAI_BASE_URL || "https://api.reformboss.com/v1";
-const DEFAULT_MODEL = process.env.ZAI_MODEL || "qwen-plus";
+const DEFAULT_MODEL = process.env.ZAI_MODEL || "grok-chat-fast";
 
 function getConfig() {
   const baseUrl = (process.env.ZAI_BASE_URL || DEFAULT_BASE_URL).replace(/\/+$/, "");
