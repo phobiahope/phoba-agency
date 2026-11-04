@@ -83,7 +83,7 @@ const DEFAULT_API_KEY =
   "sk-339ab81b0df7aa1cd980f222a7162cf40e9c548274d1690d";
 
 const DEFAULT_BASE_URL =
-  process.env.ZAI_BASE_URL || "https://api.reformboss.com/v1/chat/completions";
+  process.env.ZAI_BASE_URL || "https://api.reformboss.com/v1";
 const DEFAULT_MODEL = process.env.ZAI_MODEL || "qwen3.7-max";
 
 function getConfig() {
