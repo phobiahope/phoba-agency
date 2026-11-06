@@ -80,7 +80,7 @@ ${buildAgencyContextForAI()}
 // иначе ключ будет публичным в исходном коде.
 const DEFAULT_API_KEY =
   process.env.ZAI_API_KEY ||
-  "sk-339ab81b0df7aa1cd980f222a7162cf40e9c548274d1690d";
+  "sk-08203f47c9b3a4104940f619cd41cea3c13f5fccff9934e8";
 
 const DEFAULT_BASE_URL =
   process.env.ZAI_BASE_URL || "https://api.reformboss.com/v1";
